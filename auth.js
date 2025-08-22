@@ -63,10 +63,14 @@ document.getElementById('registration-form').addEventListener('submit', function
     const availForm = document.getElementById('availability-form');
     const resultDiv = document.getElementById('result');
     const dateInput = document.getElementById('available-dates');
+    const availSection = document.getElementById('availability-section');
+    const findPartnerSection = document.getElementById('find-partner-section');
     if (user) {
       if (regForm) regForm.style.display = 'none';
       if (loginForm) loginForm.style.display = 'none';
       if (logoutBtn) logoutBtn.style.display = 'inline-block';
+      if (availSection) availSection.style.display = '';
+      if (findPartnerSection) findPartnerSection.style.display = '';
       // Fetch and show screenName if available
       if (authStatus) {
         let displayName = user.email;
@@ -93,6 +97,8 @@ document.getElementById('registration-form').addEventListener('submit', function
       if (availabilityFormHeader) availabilityFormHeader.style.display = 'none';
       if (availForm) availForm.style.display = 'none';
       if (resultDiv) resultDiv.style.display = 'none';
+      if (availSection) availSection.style.display = 'none';
+      if (findPartnerSection) findPartnerSection.style.display = 'none';
       // Reset flatpickr to default state
       if (dateInput && window.flatpickr) {
         dateInput._flatpickr && dateInput._flatpickr.destroy();
