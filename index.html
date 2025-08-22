@@ -9,23 +9,34 @@
     <!-- If you want analytics, include this -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
     <!-- Add other Firebase SDKs as needed (e.g., firestore, auth) -->
-     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Auth SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 </head>
 <body>
-        <h1>Squash League: Enter Your Weekly Availability</h1>
-        <form id="availability-form">
-            <p>Select the days you are available to play squash this week:</p>
-            <label><input type="checkbox" name="days" value="Monday"> Monday</label><br>
-            <label><input type="checkbox" name="days" value="Tuesday"> Tuesday</label><br>
-            <label><input type="checkbox" name="days" value="Wednesday"> Wednesday</label><br>
-            <label><input type="checkbox" name="days" value="Thursday"> Thursday</label><br>
-            <label><input type="checkbox" name="days" value="Friday"> Friday</label><br>
-            <label><input type="checkbox" name="days" value="Saturday"> Saturday</label><br>
-            <label><input type="checkbox" name="days" value="Sunday"> Sunday</label><br><br>
-            <button type="submit">Submit Availability</button>
-        </form>
-        <div id="result"></div>
-        <!-- App logic and Firebase initialization -->
-        <script src="firebase.js"></script>
+    <h1>Squash League Registration</h1>
+    <form id="registration-form">
+        <p>Register with your email and password:</p>
+        <label>Email: <input type="email" id="reg-email" required></label><br>
+        <label>Password: <input type="password" id="reg-password" required></label><br><br>
+        <button type="submit">Register</button>
+    </form>
+    <div id="registration-result"></div>
+
+    <h2>Enter Your Weekly Availability</h2>
+    <form id="availability-form">
+        <p>Select the days you are available to play squash this week:</p>
+        <label><input type="checkbox" name="days" value="Monday"> Monday</label><br>
+        <label><input type="checkbox" name="days" value="Tuesday"> Tuesday</label><br>
+        <label><input type="checkbox" name="days" value="Wednesday"> Wednesday</label><br>
+        <label><input type="checkbox" name="days" value="Thursday"> Thursday</label><br>
+        <label><input type="checkbox" name="days" value="Friday"> Friday</label><br>
+        <label><input type="checkbox" name="days" value="Saturday"> Saturday</label><br>
+        <label><input type="checkbox" name="days" value="Sunday"> Sunday</label><br><br>
+        <button type="submit">Submit Availability</button>
+    </form>
+    <div id="result"></div>
+    <!-- App logic and Firebase initialization -->
+    <script src="firebase.js"></script>
 </body>
 </html>

@@ -19,7 +19,9 @@ if (firebase.analytics) {
   firebase.analytics();
 }
 
+
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 function saveAvailability(days) {
   return db.collection('availability').add({
@@ -29,9 +31,25 @@ function saveAvailability(days) {
 }
 window.saveAvailability = saveAvailability; // Make it available globally
 
+
+// Registration form logic
+document.getElementById('registration-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const email = document.getElementById('reg-email').value;
+  const password = document.getElementById('reg-password').value;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      document.getElementById('registration-result').textContent = 'Registration successful! You can now submit your availability.';
+    })
+    .catch((error) => {
+      document.getElementById('registration-result').textContent = 'Error: ' + error.message;
+    });
+});
+
+// Availability form logic
 document.getElementById('availability-form').addEventListener('submit', function(e) {
   e.preventDefault();
-  const checked = Array.from(document.querySelectorAll('input[name=\"days\"]:checked')).map(cb => cb.value);
+  const checked = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
   saveAvailability(checked).then(() => {
     document.getElementById('result').textContent = 'Availability saved!';
   }).catch(err => {
