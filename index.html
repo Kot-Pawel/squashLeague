@@ -51,10 +51,21 @@
     <br><br>
     <button type="submit">Submit Availability</button>
     </form>
-    <div id="result"></div>
-    <!-- App logic and Firebase initialization -->
-    <script src="firebase.js"></script>
-    <script src="auth.js"></script>
+        <div id="result"></div>
+
+        <h2>Find a Partner</h2>
+        <form id="find-partner-form">
+            <p>Select a date to see who else is available:</p>
+            <input id="find-partner-date" name="find-partner-date" placeholder="Pick a date..." readonly>
+        </form>
+        <div id="partner-results"></div>
+        <div id="my-partner-summary"></div>
+
+        <!-- App logic and Firebase initialization -->
+        <script src="firebase.js"></script>
+        <script src="auth.js"></script>
+        <script src="calendar.js"></script>
+        <script src="find_partner.js"></script>
 </body>
 <script>
         // Initialize flatpickr for multiple date selection with date limits
