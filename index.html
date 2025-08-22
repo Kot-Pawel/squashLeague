@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+        <style>
+            .picked-date {
+                background: #4caf50 !important;
+                color: #fff !important;
+                border-radius: 50% !important;
+            }
+        </style>
+    <!-- flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Squash League</title>
@@ -15,6 +26,7 @@
 </head>
 <body>
     <h1>Squash League Registration</h1>
+    <div id="auth-status">Not logged in.</div>
     <form id="registration-form">
         <p>Register with your email and password:</p>
         <label>Email: <input type="email" id="reg-email" required></label><br>
@@ -23,20 +35,42 @@
     </form>
     <div id="registration-result"></div>
 
-    <h2>Enter Your Weekly Availability</h2>
+    <form id="login-form">
+        <p>Already have an account? Log in:</p>
+        <label>Email: <input type="email" id="login-email" required></label><br>
+        <label>Password: <input type="password" id="login-password" required></label><br><br>
+        <button type="submit">Login</button>
+    </form>
+    <div id="login-result"></div>
+    <button id="logout-btn" style="display:none;">Logout</button>
+
+    <h2 id="availability-form-header">Enter Your Weekly Availability</h2>
     <form id="availability-form">
-        <p>Select the days you are available to play squash this week:</p>
-        <label><input type="checkbox" name="days" value="Monday"> Monday</label><br>
-        <label><input type="checkbox" name="days" value="Tuesday"> Tuesday</label><br>
-        <label><input type="checkbox" name="days" value="Wednesday"> Wednesday</label><br>
-        <label><input type="checkbox" name="days" value="Thursday"> Thursday</label><br>
-        <label><input type="checkbox" name="days" value="Friday"> Friday</label><br>
-        <label><input type="checkbox" name="days" value="Saturday"> Saturday</label><br>
-        <label><input type="checkbox" name="days" value="Sunday"> Sunday</label><br><br>
-        <button type="submit">Submit Availability</button>
+    <p>Select the dates you are available to play squash:</p>
+    <input id="available-dates" name="available-dates" placeholder="Select dates..." readonly>
+    <br><br>
+    <button type="submit">Submit Availability</button>
     </form>
     <div id="result"></div>
     <!-- App logic and Firebase initialization -->
     <script src="firebase.js"></script>
+    <script src="auth.js"></script>
+</body>
+<script>
+        // Initialize flatpickr for multiple date selection with date limits
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const maxDate = new Date(today);
+            maxDate.setDate(today.getDate() + 30);
+            flatpickr("#available-dates", {
+                mode: "multiple",
+                dateFormat: "Y-m-d",
+                minDate: tomorrow,
+                maxDate: maxDate
+            });
+        });
+</script>
 </body>
 </html>
