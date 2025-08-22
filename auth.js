@@ -64,47 +64,6 @@ document.getElementById('registration-form').addEventListener('submit', function
       if (availForm) availForm.style.display = 'block';
       if (resultDiv) resultDiv.style.display = 'block';
 
-      // Fetch user's future availability dates from Firestore
-      if (dateInput && window.flatpickr) {
-        const db = firebase.firestore();
-        const today = new Date();
-        let userDates = [];
-        try {
-          const snapshot = await db.collection('availability')
-            .where('email', '==', user.email)
-            .get();
-          snapshot.forEach(doc => {
-            const dates = doc.data().dates || [];
-            // Only keep dates in the future
-            dates.forEach(dateStr => {
-              const d = new Date(dateStr);
-              if (d > today) userDates.push(dateStr);
-            });
-          });
-        } catch (err) {
-          console.error('Error fetching user availability:', err);
-        }
-        // Re-initialize flatpickr with selected and disabled dates
-        dateInput._flatpickr && dateInput._flatpickr.destroy();
-        flatpickr(dateInput, {
-          mode: "multiple",
-          dateFormat: "Y-m-d",
-          minDate: (() => { let t = new Date(); t.setDate(t.getDate() + 1); return t; })(),
-          maxDate: (() => { let t = new Date(); t.setDate(t.getDate() + 30); return t; })(),
-          defaultDate: userDates,
-          disable: userDates,
-            onDayCreate: function(dObj, dStr, fp, dayElem) {
-              // Only mark as picked if this disabled date is in userDates
-              if (dayElem.classList.contains('flatpickr-disabled')) {
-                const dateStr = dayElem.dateObj && fp.formatDate(dayElem.dateObj, "Y-m-d");
-                if (dateStr && userDates.includes(dateStr)) {
-                  dayElem.title = 'You already picked this date';
-                  dayElem.classList.add('picked-date');
-                }
-              }
-          }
-        });
-      }
     } else {
       if (regForm) regForm.style.display = 'block';
       if (loginForm) loginForm.style.display = 'block';
