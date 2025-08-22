@@ -80,33 +80,6 @@
                 </div>
                 <button id="logout-btn" class="btn btn-secondary w-100" style="display:none;">Logout</button>
             </div>
-        <script>
-        // Toggle login/registration divs visibility
-        document.addEventListener('DOMContentLoaded', function() {
-            var showRegisterBtn = document.getElementById('show-register-btn');
-            var loginDiv = document.getElementById('login-div');
-            var registrationDiv = document.getElementById('registration-div');
-            var backToLoginBtn = document.getElementById('back-to-login-btn');
-            // Initial state: show login div, hide registration div
-            if (loginDiv) loginDiv.style.display = '';
-            if (registrationDiv) registrationDiv.style.display = 'none';
-
-            if (showRegisterBtn && registrationDiv && loginDiv) {
-                showRegisterBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    registrationDiv.style.display = '';
-                    loginDiv.style.display = 'none';
-                });
-            }
-            if (backToLoginBtn && registrationDiv && loginDiv) {
-                backToLoginBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    registrationDiv.style.display = 'none';
-                    loginDiv.style.display = '';
-                });
-            }
-        });
-        </script>
 
             <!-- Availability Section -->
             <div class="card mb-4" id="availability-section">
@@ -140,41 +113,8 @@
         <script src="auth.js"></script>
         <script src="calendar.js"></script>
         <script src="find_partner.js"></script>
-</body>
-<script>
-        // Initialize flatpickr for multiple date selection with date limits
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            const maxDate = new Date(today);
-            maxDate.setDate(today.getDate() + 30);
-            flatpickr("#available-dates", {
-                mode: "multiple",
-                dateFormat: "Y-m-d",
-                minDate: tomorrow,
-                maxDate: maxDate
-            </script>
-            <script>
-            // Hide/show register button based on login state
-            document.addEventListener('DOMContentLoaded', function() {
-                var showRegisterBtn = document.getElementById('show-register-btn');
-                var authStatus = document.getElementById('auth-status');
-                function updateRegisterBtnVisibility() {
-                    if (!showRegisterBtn || !authStatus) return;
-                    var isLoggedIn = authStatus.textContent && authStatus.textContent.toLowerCase().indexOf('logged in') !== -1 && authStatus.textContent.toLowerCase().indexOf('not logged in') === -1;
-                    showRegisterBtn.style.display = isLoggedIn ? 'none' : '';
-                }
-                // Initial check
-                updateRegisterBtnVisibility();
-                // Observe changes to auth-status
-                var observer = new MutationObserver(updateRegisterBtnVisibility);
-                if (authStatus) {
-                    observer.observe(authStatus, { childList: true, subtree: true, characterData: true });
-                }
-            });
-            </script>
-            </body>
-            </html>
+
+    <!-- UI logic for login/register toggle, register button visibility, and flatpickr init -->
+    <script src="ui.js"></script>
 </body>
 </html>
