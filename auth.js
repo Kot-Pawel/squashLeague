@@ -8,11 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
 // Registration form logic
 document.getElementById('registration-form').addEventListener('submit', function(e) {
   e.preventDefault();
+  const screenName = document.getElementById('reg-screenname').value;
   const email = document.getElementById('reg-email').value;
   const password = document.getElementById('reg-password').value;
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
-      document.getElementById('registration-result').textContent = 'Registration successful! You can now submit your availability.';
+      // Save screenName to users collection
+      const db = firebase.firestore();
+      return db.collection('users').doc(userCredential.user.uid).set({
+        screenName: screenName,
+        email: email
+      }).then(() => {
+        document.getElementById('registration-result').textContent = 'Registration successful! You can now submit your availability.';
+      });
     })
     .catch((error) => {
       document.getElementById('registration-result').textContent = 'Error: ' + error.message;
@@ -59,7 +67,20 @@ document.getElementById('registration-form').addEventListener('submit', function
       if (regForm) regForm.style.display = 'none';
       if (loginForm) loginForm.style.display = 'none';
       if (logoutBtn) logoutBtn.style.display = 'inline-block';
-      if (authStatus) authStatus.textContent = 'Logged in as: ' + user.email;
+      // Fetch and show screenName if available
+      if (authStatus) {
+        let displayName = user.email;
+        try {
+          const db = firebase.firestore();
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          if (userDoc.exists && userDoc.data().screenName) {
+            displayName = userDoc.data().screenName;
+          }
+        } catch (err) {
+          // fallback to email
+        }
+        authStatus.textContent = 'Logged in as: ' + displayName;
+      }
       if (availabilityFormHeader) availabilityFormHeader.style.display = 'block';
       if (availForm) availForm.style.display = 'block';
       if (resultDiv) resultDiv.style.display = 'block';

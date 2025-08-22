@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <style>
             .picked-date {
                 background: #4caf50 !important;
@@ -25,41 +27,60 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 </head>
 <body>
-    <h1>Squash League Registration</h1>
-    <div id="auth-status">Not logged in.</div>
-    <form id="registration-form">
-        <p>Register with your email and password:</p>
-        <label>Email: <input type="email" id="reg-email" required></label><br>
-        <label>Password: <input type="password" id="reg-password" required></label><br><br>
-        <button type="submit">Register</button>
-    </form>
-    <div id="registration-result"></div>
+        <div class="container py-4">
+            <div class="mb-4 text-center">
+                <img src="img/banner.png" alt="Squash League Banner" class="img-fluid" style="max-width:100%;height:auto;">
+            </div>
+            <!-- Login/Registration Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">Login / Registration</div>
+                <div class="card-body">
+                    <div id="auth-status" class="mb-2">Not logged in.</div>
+                    <form id="registration-form" class="mb-3">
+                        <p class="mb-1">Register with your email, screen name, and password:</p>
+                        <div class="mb-2"><label>Screen Name: <input type="text" id="reg-screenname" class="form-control" required></label></div>
+                        <div class="mb-2"><label>Email: <input type="email" id="reg-email" class="form-control" required></label></div>
+                        <div class="mb-2"><label>Password: <input type="password" id="reg-password" class="form-control" required></label></div>
+                        <button type="submit" class="btn btn-success">Register</button>
+                    </form>
+                    <div id="registration-result" class="mb-3"></div>
+                    <form id="login-form" class="mb-3">
+                        <p class="mb-1">Already have an account? Log in:</p>
+                        <div class="mb-2"><label>Email: <input type="email" id="login-email" class="form-control" required></label></div>
+                        <div class="mb-2"><label>Password: <input type="password" id="login-password" class="form-control" required></label></div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                    <div id="login-result" class="mb-2"></div>
+                    <button id="logout-btn" class="btn btn-secondary" style="display:none;">Logout</button>
+                </div>
+            </div>
 
-    <form id="login-form">
-        <p>Already have an account? Log in:</p>
-        <label>Email: <input type="email" id="login-email" required></label><br>
-        <label>Password: <input type="password" id="login-password" required></label><br><br>
-        <button type="submit">Login</button>
-    </form>
-    <div id="login-result"></div>
-    <button id="logout-btn" style="display:none;">Logout</button>
+            <!-- Availability Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">Enter Your Availability</div>
+                <div class="card-body">
+                    <form id="availability-form">
+                        <p>Select the dates you are available to play squash:</p>
+                        <input id="available-dates" name="available-dates" class="form-control mb-3" placeholder="Select dates..." readonly>
+                        <button type="submit" class="btn btn-success">Submit Availability</button>
+                    </form>
+                    <div id="result" class="mt-2"></div>
+                </div>
+            </div>
 
-    <h2 id="availability-form-header">Enter Your Weekly Availability</h2>
-    <form id="availability-form">
-    <p>Select the dates you are available to play squash:</p>
-    <input id="available-dates" name="available-dates" placeholder="Select dates..." readonly>
-    <br><br>
-    <button type="submit">Submit Availability</button>
-    </form>
-        <div id="result"></div>
-
-        <h2>Find a Partner</h2>
-        <form id="find-partner-form">
-            <p>Select a date to see who else is available:</p>
-            <input id="find-partner-date" name="find-partner-date" placeholder="Pick a date..." readonly>
-        </form>
-        <div id="partner-results"></div>
-        <div id="my-partner-summary"></div>
+            <!-- Find a Partner Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">Find a Partner</div>
+                <div class="card-body">
+                    <form id="find-partner-form">
+                        <p>Select a date to see who else is available:</p>
+                        <input id="find-partner-date" name="find-partner-date" class="form-control mb-3" placeholder="Pick a date..." readonly>
+                    </form>
+                    <div id="partner-results" class="mb-3"></div>
+                    <div id="my-partner-summary"></div>
+                </div>
+            </div>
+        </div>
 
         <!-- App logic and Firebase initialization -->
         <script src="firebase.js"></script>
