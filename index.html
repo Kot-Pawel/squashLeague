@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .login-floating-box {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            z-index: 10;
+            min-width: 320px;
+            max-width: 350px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+        }
+        @media (max-width: 600px) {
+            .login-floating-box {
+                position: static;
+                margin: 0 auto 1rem auto;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+    </style>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <style>
@@ -31,29 +54,59 @@
             <div class="mb-4 text-center">
                 <img src="img/banner.png" alt="Squash League Banner" class="img-fluid" style="max-width:100%;height:auto;">
             </div>
-            <!-- Login/Registration Section -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">Login / Registration</div>
-                <div class="card-body">
-                    <div id="auth-status" class="mb-2">Not logged in.</div>
+            <!-- Floating Login/Registration Box -->
+            <div class="login-floating-box" id="login-section">
+                <div id="auth-status" class="mb-2">Not logged in.</div>
+                <div id="login-div">
+                    <form id="login-form" class="mb-3">
+                        <p class="mb-1">Log in to your account:</p>
+                        <div class="mb-2"><label>Email: <input type="email" id="login-email" class="form-control" required></label></div>
+                        <div class="mb-2"><label>Password: <input type="password" id="login-password" class="form-control" required></label></div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                    <div id="login-result" class="mb-2"></div>
+                    <button id="show-register-btn" class="btn btn-outline-success w-100 mb-2">Not a user? Register!</button>
+                </div>
+                <div id="registration-div" style="display:none;">
                     <form id="registration-form" class="mb-3">
                         <p class="mb-1">Register with your email, screen name, and password:</p>
+                        <button id="back-to-login-btn" type="button" class="btn btn-link p-0 mb-2">&larr; Back to Login</button>
                         <div class="mb-2"><label>Screen Name: <input type="text" id="reg-screenname" class="form-control" required></label></div>
                         <div class="mb-2"><label>Email: <input type="email" id="reg-email" class="form-control" required></label></div>
                         <div class="mb-2"><label>Password: <input type="password" id="reg-password" class="form-control" required></label></div>
-                        <button type="submit" class="btn btn-success">Register</button>
+                        <button type="submit" class="btn btn-success w-100">Register</button>
                     </form>
                     <div id="registration-result" class="mb-3"></div>
-                    <form id="login-form" class="mb-3">
-                        <p class="mb-1">Already have an account? Log in:</p>
-                        <div class="mb-2"><label>Email: <input type="email" id="login-email" class="form-control" required></label></div>
-                        <div class="mb-2"><label>Password: <input type="password" id="login-password" class="form-control" required></label></div>
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </form>
-                    <div id="login-result" class="mb-2"></div>
-                    <button id="logout-btn" class="btn btn-secondary" style="display:none;">Logout</button>
                 </div>
+                <button id="logout-btn" class="btn btn-secondary w-100" style="display:none;">Logout</button>
             </div>
+        <script>
+        // Toggle login/registration divs visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            var showRegisterBtn = document.getElementById('show-register-btn');
+            var loginDiv = document.getElementById('login-div');
+            var registrationDiv = document.getElementById('registration-div');
+            var backToLoginBtn = document.getElementById('back-to-login-btn');
+            // Initial state: show login div, hide registration div
+            if (loginDiv) loginDiv.style.display = '';
+            if (registrationDiv) registrationDiv.style.display = 'none';
+
+            if (showRegisterBtn && registrationDiv && loginDiv) {
+                showRegisterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    registrationDiv.style.display = '';
+                    loginDiv.style.display = 'none';
+                });
+            }
+            if (backToLoginBtn && registrationDiv && loginDiv) {
+                backToLoginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    registrationDiv.style.display = 'none';
+                    loginDiv.style.display = '';
+                });
+            }
+        });
+        </script>
 
             <!-- Availability Section -->
             <div class="card mb-4" id="availability-section">
@@ -101,8 +154,27 @@
                 dateFormat: "Y-m-d",
                 minDate: tomorrow,
                 maxDate: maxDate
+            </script>
+            <script>
+            // Hide/show register button based on login state
+            document.addEventListener('DOMContentLoaded', function() {
+                var showRegisterBtn = document.getElementById('show-register-btn');
+                var authStatus = document.getElementById('auth-status');
+                function updateRegisterBtnVisibility() {
+                    if (!showRegisterBtn || !authStatus) return;
+                    var isLoggedIn = authStatus.textContent && authStatus.textContent.toLowerCase().indexOf('logged in') !== -1 && authStatus.textContent.toLowerCase().indexOf('not logged in') === -1;
+                    showRegisterBtn.style.display = isLoggedIn ? 'none' : '';
+                }
+                // Initial check
+                updateRegisterBtnVisibility();
+                // Observe changes to auth-status
+                var observer = new MutationObserver(updateRegisterBtnVisibility);
+                if (authStatus) {
+                    observer.observe(authStatus, { childList: true, subtree: true, characterData: true });
+                }
             });
-        });
-</script>
+            </script>
+            </body>
+            </html>
 </body>
 </html>
