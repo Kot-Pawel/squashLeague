@@ -42,16 +42,24 @@ document.addEventListener('DOMContentLoaded', function() {
     let partners = [];
     try {
       const snapshot = await db.collection('availability').get();
-      snapshot.forEach(doc => {
+      for (const doc of snapshot.docs) {
         const data = doc.data();
-        if (!data.dates || !Array.isArray(data.dates)) return;
+        if (!data.dates || !Array.isArray(data.dates)) continue;
         if (data.dates.includes(dateStr)) {
           // Exclude current user
           if (!currentUser || doc.id !== currentUser.uid) {
-            partners.push(data.email);
+            // Fetch screenName from users collection
+            let screenName = data.email;
+            try {
+              const userDoc = await db.collection('users').doc(doc.id).get();
+              if (userDoc.exists && userDoc.data().screenName) {
+                screenName = userDoc.data().screenName;
+              }
+            } catch {}
+            partners.push(screenName);
           }
         }
-      });
+      }
     } catch (err) {
       resultsDiv.textContent = 'Error fetching partners: ' + err.message;
       return;
@@ -59,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (partners.length === 0) {
       resultsDiv.textContent = 'No other users are available on this date.';
     } else {
-      resultsDiv.innerHTML = '<b>Available users:</b><ul>' + partners.map(email => `<li>${email}</li>`).join('') + '</ul>';
+      resultsDiv.innerHTML = '<b>Available users:</b><ul>' + partners.map(name => `<li>${name}</li>`).join('') + '</ul>';
     }
   }
   // Show user's picked dates and partners for next 14 days
@@ -101,13 +109,21 @@ document.addEventListener('DOMContentLoaded', function() {
       let partners = [];
       try {
         const snapshot = await db.collection('availability').get();
-        snapshot.forEach(doc => {
+        for (const doc of snapshot.docs) {
           const data = doc.data();
-          if (!data.dates || !Array.isArray(data.dates)) return;
+          if (!data.dates || !Array.isArray(data.dates)) continue;
           if (data.dates.includes(dateStr) && doc.id !== currentUser.uid) {
-            partners.push(data.email);
+            // Fetch screenName from users collection
+            let screenName = data.email;
+            try {
+              const userDoc = await db.collection('users').doc(doc.id).get();
+              if (userDoc.exists && userDoc.data().screenName) {
+                screenName = userDoc.data().screenName;
+              }
+            } catch {}
+            partners.push(screenName);
           }
-        });
+        }
       } catch (err) {
         partners = ['Error fetching partners'];
       }

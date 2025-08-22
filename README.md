@@ -1,6 +1,16 @@
-# squashLeague
 
-App to manage squash pairings and more
+# Squash League
+
+Squash League is a web app that helps squash players find partners and organize games. Users can:
+
+- Register with email, password, and a custom screen name
+- Log in and manage their weekly availability using a calendar
+- See which dates they have picked and who else is available on those dates
+- Use a "Find a Partner" calendar to view other available players for a selected date
+- See a summary of their upcoming dates and potential partners for the next 14 days
+- Enjoy a modern, mobile-friendly interface with a custom banner and Bootstrap styling
+
+All user data is securely stored in Firebase (Firestore and Authentication). Screen names are used for privacy instead of emails. The app is designed for easy deployment on GitHub Pages.
 
 ## Security Note: Firebase API Key
 
