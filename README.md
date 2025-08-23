@@ -29,9 +29,14 @@ This project uses [Jest](https://jestjs.io/) for automated testing of JavaScript
 
 1. Make sure you have [Node.js](https://nodejs.org/) installed.
 2. Install project dependencies (including Jest):
-	```sh
-	npm install
-	```
+	
+```sh
+npm install
+```
+
+```sh
+npm install --save-dev jest-environment-jsdom
+```
 
 ## Running Tests
 
@@ -39,6 +44,12 @@ To run all tests:
 
 ```sh
 npm test
+```
+
+To run tests with coverage:
+
+```sh
+npx jest --coverage
 ```
 
 Test files are located in the `tests/` directory and should be named with the `.test.js` suffix.
