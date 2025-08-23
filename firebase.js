@@ -23,9 +23,6 @@ if (firebase.analytics) {
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-
-
-
 function saveAvailability(dates, userEmail, userUid) {
   const docRef = db.collection('availability').doc(userUid);
   return docRef.get().then(docSnap => {
@@ -49,8 +46,6 @@ function saveAvailability(dates, userEmail, userUid) {
 window.saveAvailability = saveAvailability; // Make it available globally
 
 // Availability form logic
-
-
 
 document.getElementById('availability-form').addEventListener('submit', function(e) {
   e.preventDefault();
