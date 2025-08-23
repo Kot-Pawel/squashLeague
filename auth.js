@@ -105,16 +105,44 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         // Fetch and show screenName if available
         if (authStatus) {
           let displayName = user.email;
+          let screenName = null;
           try {
             const db = firebase.firestore();
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists && userDoc.data().screenName) {
               displayName = userDoc.data().screenName;
+              screenName = displayName;
             }
           } catch (err) {
             // fallback to email
           }
-          authStatus.textContent = 'Logged in as: ' + displayName;
+          // Render displayName in a span with a pencil icon for editing
+          authStatus.innerHTML = `Logged in as: <span id="display-name-span">${displayName}</span> <span id="edit-screenname" style="cursor:pointer;" title="Edit screen name">✏️</span>`;
+          // Add event listener for editing
+          const editBtn = document.getElementById('edit-screenname');
+          const displayNameSpan = document.getElementById('display-name-span');
+          if (editBtn && displayNameSpan) {
+            editBtn.onclick = function() {
+              // Replace span with input
+              displayNameSpan.innerHTML = `<input id='edit-screenname-input' type='text' value='${screenName || displayName}' style='width:120px;'> <button id='save-screenname-btn' class='btn btn-sm btn-success'>Save</button>`;
+              document.getElementById('save-screenname-btn').onclick = async function() {
+                const input = document.getElementById('edit-screenname-input');
+                const newScreenName = input.value.trim();
+                if (newScreenName && newScreenName !== displayName) {
+                  try {
+                    // Dynamically import accountManager.js
+                    const mod = await import('./accountManager.js');
+                    await mod.updateScreenName(user.uid, newScreenName);
+                    displayNameSpan.textContent = newScreenName;
+                  } catch (err) {
+                    alert('Failed to update screen name: ' + err.message);
+                  }
+                } else {
+                  displayNameSpan.textContent = displayName;
+                }
+              };
+            };
+          }
         }
         if (availabilityFormHeader) availabilityFormHeader.style.display = 'block';
         if (availForm) availForm.style.display = 'block';

@@ -24,6 +24,12 @@ For more information, see the [Firebase documentation](https://firebase.google.c
 
 # Testing
 
+## Manual tests
+
+To perform manual testing, start a new server with start_local_server.bat and open http://localhost:8000/index.html
+
+## Automated tests
+
 This project uses [Jest](https://jestjs.io/) for automated testing of JavaScript code.
 
 ## Setup
@@ -71,6 +77,6 @@ This allows npm scripts to run in your user environment.
 - Use the `.test.js` extension (e.g., `myFunction.test.js`).
 - See `tests/sample.test.js` for an example.
 
-## Troubleshooting
+# Troubleshooting
 
 - If you have issues, make sure dependencies are installed and your Node.js version is up to date.
