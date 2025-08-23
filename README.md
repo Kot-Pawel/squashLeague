@@ -1,6 +1,7 @@
 # Squash League
 
-Squash League is a web app that helps squash players find partners and organize games. Users can:
+Squash League is a web app that helps squash players find partners and organize games. 
+Users can:
 
 - Register with email, password, and a custom screen name
 - Log in and manage their weekly availability using a calendar
