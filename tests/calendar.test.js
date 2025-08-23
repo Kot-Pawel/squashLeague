@@ -1,3 +1,65 @@
+/**
+ * @jest-environment jsdom
+ */
+// DOM logic tests for calendar.js
+describe('calendar.js DOM logic', () => {
+  let flatpickrMock, firebaseMock, dateInput;
+  beforeEach(() => {
+    document.body.innerHTML = `<input id="available-dates">`;
+    dateInput = document.getElementById('available-dates');
+    flatpickrMock = jest.fn();
+    window.flatpickr = flatpickrMock;
+    // Mock firebase
+    firebaseMock = {
+      auth: jest.fn(() => ({
+        currentUser: null,
+        onAuthStateChanged: jest.fn()
+      })),
+      firestore: jest.fn(() => ({
+        collection: jest.fn(() => ({
+          doc: jest.fn(() => ({
+            get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ dates: ['2025-08-24', '2025-08-25'] }) }))
+          }))
+        }))
+      }))
+    };
+    window.firebase = firebaseMock;
+    jest.resetModules();
+    require('../calendar');
+    document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
+  });
+
+  afterEach(() => {
+    jest.resetModules();
+    delete window.flatpickr;
+    delete window.firebase;
+  });
+
+  it('initializes flatpickr with default options when no user is logged in', () => {
+    expect(flatpickrMock).toHaveBeenCalledWith(dateInput, expect.objectContaining({
+      mode: 'multiple',
+      dateFormat: 'Y-m-d',
+    }));
+  });
+
+  it('initializes flatpickr with user dates when user is logged in', async () => {
+    // Simulate user login
+    const user = { uid: 'abc123', email: 'test@example.com' };
+    firebaseMock.auth = jest.fn(() => ({
+      currentUser: user,
+      onAuthStateChanged: jest.fn(cb => cb(user))
+    }));
+    jest.resetModules();
+    require('../calendar');
+    document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
+    // Wait for async initUserPicker
+    await new Promise(r => setTimeout(r, 0));
+    expect(flatpickrMock).toHaveBeenCalledWith(dateInput, expect.objectContaining({
+      defaultDate: expect.any(Array),
+      disable: expect.any(Array),
+    }));
+  });
+});
 // tests/calendar.test.js
 // Automated tests for calendar.js pure functions
 

@@ -35,6 +35,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     const auth = firebase.auth();
 
+    // Use window-scoped functions if available (for testability)
+    const regUserFn = window.registerUser || registerUser;
+    const loginUserFn = window.loginUser || loginUser;
+    const logoutUserFn = window.logoutUser || logoutUser;
+    const observeAuthStateFn = window.observeAuthState || observeAuthState;
+
     // Registration form logic
     const regForm = document.getElementById('registration-form');
     if (regForm) {
@@ -43,7 +49,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const screenName = document.getElementById('reg-screenname').value;
         const email = document.getElementById('reg-email').value;
         const password = document.getElementById('reg-password').value;
-        registerUser({ screenName, email, password, firebase })
+        regUserFn({ screenName, email, password, firebase })
           .then(() => {
             document.getElementById('registration-result').textContent = 'Registration successful! You can now submit your availability.';
           })
@@ -60,7 +66,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
-        loginUser({ email, password, firebase })
+        loginUserFn({ email, password, firebase })
           .then(() => {
             document.getElementById('login-result').textContent = 'Login successful!';
           })
@@ -74,12 +80,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', function() {
-        logoutUser({ firebase });
+        logoutUserFn({ firebase });
       });
     }
 
     // Auth state observer - this is to show proper windows depending on whether user is logged in
-    observeAuthState({ firebase, onChange: async function(user) {
+    observeAuthStateFn({ firebase, onChange: async function(user) {
       const regForm = document.getElementById('registration-form');
       const loginForm = document.getElementById('login-form');
       const logoutBtn = document.getElementById('logout-btn');

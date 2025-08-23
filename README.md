@@ -29,9 +29,14 @@ This project uses [Jest](https://jestjs.io/) for automated testing of JavaScript
 
 1. Make sure you have [Node.js](https://nodejs.org/) installed.
 2. Install project dependencies (including Jest):
-	```sh
-	npm install
-	```
+	
+```sh
+npm install
+```
+
+```sh
+npm install --save-dev jest-environment-jsdom
+```
 
 ## Running Tests
 
