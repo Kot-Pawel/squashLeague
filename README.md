@@ -41,6 +41,12 @@ To run all tests:
 npm test
 ```
 
+To run tests with coverage:
+
+```sh
+npx jest --coverage
+```
+
 Test files are located in the `tests/` directory and should be named with the `.test.js` suffix.
 
 ## PowerShell Users
