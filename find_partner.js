@@ -1,6 +1,4 @@
-// find_partner.js
 // Handles the 'Find a Partner' calendar and fetching users available on a selected date
-
 
 // Pure functions for partner finding and summary building
 function filterDatesInRange(dates, from, to) {

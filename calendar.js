@@ -1,6 +1,4 @@
-// calendar.js
 // Handles flatpickr initialization and fetching user's future availability from Firestore
-
 
 // Pure functions for date calculations and filtering
 function getMinDate() {

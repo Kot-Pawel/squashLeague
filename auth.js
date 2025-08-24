@@ -1,8 +1,5 @@
-// auth.js
 // Handles login, logout, and UI updates for authentication state
 
-
-// Pure functions for authentication logic
 function registerUser({ screenName, email, password, firebase }) {
   const auth = firebase.auth();
   return auth.createUserWithEmailAndPassword(email, password)
