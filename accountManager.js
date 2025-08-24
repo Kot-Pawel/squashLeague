@@ -1,7 +1,4 @@
-// accountManager.js
 // Handles user account management, including screenName updates
-
-
 
 /**
  * Updates the user's screenName in the database.
