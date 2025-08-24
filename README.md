@@ -12,6 +12,8 @@ Users can:
 
 All user data is securely stored in Firebase (Firestore and Authentication). Screen names are used for privacy instead of emails. The app is designed for easy deployment on GitHub Pages.
 
+Code is generated using GPT-4.1
+
 ## Security Note: Firebase API Key
 
 This project uses Firebase for authentication and database. The Firebase API key is included in the client-side code. This is expected and safe for Firebase web apps:
@@ -77,6 +79,6 @@ This allows npm scripts to run in your user environment.
 - Use the `.test.js` extension (e.g., `myFunction.test.js`).
 - See `tests/sample.test.js` for an example.
 
-# Troubleshooting
+## Troubleshooting
 
 - If you have issues, make sure dependencies are installed and your Node.js version is up to date.
