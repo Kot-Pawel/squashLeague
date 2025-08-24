@@ -8,8 +8,8 @@
     // Mock Firestore to return two partners
     const mockGet = jest.fn(() => Promise.resolve({
       docs: [
-        { id: 'user1', data: () => ({ dates: ['2025-08-24'], email: 'alice@example.com' }) },
-        { id: 'user2', data: () => ({ dates: ['2025-08-24'], email: 'bob@example.com' }) }
+  { id: 'user1', data: () => ({ dates: ['2025-08-25'], email: 'alice@example.com' }) },
+  { id: 'user2', data: () => ({ dates: ['2025-08-25'], email: 'bob@example.com' }) }
       ]
     }));
     const flatpickrMock = jest.fn((el, opts) => {
@@ -25,7 +25,7 @@
     `;
     window.flatpickr = flatpickrMock;
     window.firebase = {
-      auth: jest.fn(() => ({ currentUser: null, onAuthStateChanged: jest.fn() })),
+      auth: jest.fn(() => ({ currentUser: { uid: 'me', email: 'me@example.com' }, onAuthStateChanged: jest.fn() })),
       firestore: jest.fn(() => ({
         collection: jest.fn(() => ({
           get: mockGet,
@@ -33,13 +33,14 @@
         }))
       }))
     };
-    jest.resetModules();
+  jest.clearAllMocks();
+  jest.resetModules();
     require('../find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
     const dateInput = document.getElementById('find-partner-date');
     const resultsDiv = document.getElementById('partner-results');
     // Simulate selecting a date
-    await dateInput._onChange([new Date('2025-08-24')], '2025-08-24', {});
+    await dateInput._onChange([new Date('2025-08-25')], '2025-08-25', {});
     // Wait for async fetchPartners
     await new Promise(r => setTimeout(r, 0));
     expect(resultsDiv.innerHTML).toContain('Available users:');
@@ -126,10 +127,10 @@
       collection: jest.fn((name) => {
         if (name === 'availability') {
           return {
-            doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ dates: ['2025-08-24'] }) })) })),
+            doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ dates: ['2025-08-25'] }) })) })),
             get: jest.fn(() => Promise.resolve({
               docs: [
-                { id: 'user2', data: () => ({ dates: ['2025-08-24'], email: 'bob@example.com' }) }
+                { id: 'user2', data: () => ({ dates: ['2025-08-25'], email: 'bob@example.com' }) }
               ]
             }))
           };

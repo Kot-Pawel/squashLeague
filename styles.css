@@ -1,0 +1,26 @@
+.login-floating-box {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    z-index: 10;
+    min-width: 320px;
+    max-width: 350px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+}
+@media (max-width: 600px) {
+    .login-floating-box {
+        position: static;
+        margin: 0 auto 1rem auto;
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+    }
+}
+.picked-date {
+    background: #4caf50 !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+}
