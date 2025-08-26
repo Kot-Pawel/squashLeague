@@ -43,7 +43,16 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       let userDates = [];
       try {
         const doc = await db.collection('availability').doc(user.uid).get();
-        const dates = (doc.exists && doc.data().dates) ? doc.data().dates : [];
+        let dates = [];
+        if (doc.exists) {
+          if (Array.isArray(doc.data().datesWithTimes)) {
+            // New format: [{date, times}]
+            dates = doc.data().datesWithTimes.map(entry => entry.date);
+          } else if (Array.isArray(doc.data().dates)) {
+            // Old format: [dateStr]
+            dates = doc.data().dates;
+          }
+        }
         userDates = filterFutureDates(dates, today);
       } catch (err) {
         console.error('Error fetching user availability:', err);

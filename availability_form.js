@@ -7,22 +7,35 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     if (form) {
       form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const dateInput = document.getElementById('available-dates');
-        // flatpickr stores selected dates as a comma-separated string in the input value
-        const selectedDates = dateInput.value
-          ? dateInput.value.split(',').map(date => date.trim()).filter(date => date)
-          : [];
+        // Read the new structure from the hidden input
+        const dateTimesInput = document.querySelector('input[name="date-times-json"]');
+        let selectedDateTimes = [];
+        if (dateTimesInput && dateTimesInput.value) {
+          try {
+            selectedDateTimes = JSON.parse(dateTimesInput.value);
+          } catch (e) {
+            document.getElementById('result').textContent = 'Error: Invalid date/time data.';
+            return;
+          }
+        }
         const user = firebase.auth().currentUser;
         if (!user) {
           document.getElementById('result').textContent = 'You must be logged in to submit availability.';
           return;
         }
-        if (selectedDates.length === 0) {
-          document.getElementById('result').textContent = 'Please select at least one date.';
+        if (selectedDateTimes.length === 0) {
+          document.getElementById('result').textContent = 'Please select at least one date and time slot.';
           return;
         }
+        // Check that every date has at least one time slot
+        for (const entry of selectedDateTimes) {
+          if (!entry.times || !Array.isArray(entry.times) || entry.times.length === 0) {
+            document.getElementById('result').textContent = `Please add at least one time slot for ${entry.date}.`;
+            return;
+          }
+        }
         // saveAvailability is attached to window by firebase.js
-        window.saveAvailability(selectedDates, user.email, user.uid).then(() => {
+        window.saveAvailability(selectedDateTimes, user.email, user.uid).then(() => {
           document.getElementById('result').textContent = 'Availability saved!';
         }).catch(err => {
           document.getElementById('result').textContent = 'Error: ' + err.message;
@@ -40,20 +53,35 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-function saveAvailability(dates, userEmail, userUid) {
+// datesWithTimes: [{date: 'YYYY-MM-DD', times: ['HH:mm-HH:mm', ...]}, ...]
+function saveAvailability(datesWithTimes, userEmail, userUid) {
   const docRef = db.collection('availability').doc(userUid);
   return docRef.get().then(docSnap => {
     if (docSnap.exists) {
-      // Append new dates to the array, avoiding duplicates
+      // Merge new dates/times, avoiding duplicates
+      const prev = docSnap.data().datesWithTimes || [];
+      // Merge logic: for each date, merge time slots
+      const merged = [...prev];
+      datesWithTimes.forEach(newEntry => {
+        const idx = merged.findIndex(e => e.date === newEntry.date);
+        if (idx !== -1) {
+          // Merge time slots, avoiding duplicates
+          const prevTimes = new Set(merged[idx].times);
+          newEntry.times.forEach(t => prevTimes.add(t));
+          merged[idx].times = Array.from(prevTimes);
+        } else {
+          merged.push({ date: newEntry.date, times: [...newEntry.times] });
+        }
+      });
       return docRef.update({
-        dates: firebase.firestore.FieldValue.arrayUnion(...dates),
+        datesWithTimes: merged,
         email: userEmail,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
     } else {
       // Create the document if it doesn't exist
       return docRef.set({
-        dates: dates,
+        datesWithTimes: datesWithTimes,
         email: userEmail,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });

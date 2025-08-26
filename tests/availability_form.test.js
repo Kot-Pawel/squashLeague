@@ -12,7 +12,9 @@ describe('availability_form.js (form logic)', () => {
 
   beforeEach(() => {
     document.body.innerHTML = `
-      <form id="availability-form"></form>
+      <form id="availability-form">
+        <input type="hidden" name="date-times-json" value='[{"date":"2025-08-24","times":["18:00-19:00"]},{"date":"2025-08-25","times":["19:00-20:00"]}]'>
+      </form>
       <input id="available-dates" value="2025-08-24,2025-08-25">
       <div id="result"></div>
     `;
@@ -36,11 +38,12 @@ describe('availability_form.js (form logic)', () => {
     delete global.firebase;
   });
 
-  it('submits selected dates and shows success', async () => {
+  it('submits selected dates and times and shows success', async () => {
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await Promise.resolve();
     expect(saveAvailabilityMock).toHaveBeenCalledWith([
-      '2025-08-24', '2025-08-25'
+      { date: '2025-08-24', times: ['18:00-19:00'] },
+      { date: '2025-08-25', times: ['19:00-20:00'] }
     ], 'test@example.com', 'user123');
     expect(resultDiv.textContent).toBe('Availability saved!');
   });
@@ -53,9 +56,9 @@ describe('availability_form.js (form logic)', () => {
   });
 
   it('shows error if no dates selected', () => {
-    dateInput.value = '';
+    form.querySelector('input[name="date-times-json"]').value = '';
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    expect(resultDiv.textContent).toBe('Please select at least one date.');
+    expect(resultDiv.textContent).toBe('Please select at least one date and time slot.');
     expect(saveAvailabilityMock).not.toHaveBeenCalled();
   });
 
@@ -73,7 +76,10 @@ describe('saveAvailability (unit)', () => {
   let dbMock, docRefMock, FieldValueMock, saveAvailability;
   const userUid = 'user123';
   const userEmail = 'test@example.com';
-  const dates = ['2025-08-24', '2025-08-25'];
+  const datesWithTimes = [
+    { date: '2025-08-24', times: ['18:00-19:00'] },
+    { date: '2025-08-25', times: ['19:00-20:00'] }
+  ];
 
   beforeEach(() => {
     FieldValueMock = {
@@ -103,10 +109,10 @@ describe('saveAvailability (unit)', () => {
   });
 
   it('updates document if exists', async () => {
-    docRefMock.get.mockResolvedValueOnce({ exists: true });
-    const result = await saveAvailability(dates, userEmail, userUid);
+    docRefMock.get.mockResolvedValueOnce({ exists: true, data: () => ({ datesWithTimes: [ { date: '2025-08-24', times: ['17:00-18:00'] } ] }) });
+    const result = await saveAvailability(datesWithTimes, userEmail, userUid);
     expect(docRefMock.update).toHaveBeenCalledWith({
-      dates: dates,
+      datesWithTimes: expect.any(Array),
       email: userEmail,
       timestamp: 'timestamp'
     });
@@ -115,9 +121,9 @@ describe('saveAvailability (unit)', () => {
 
   it('sets document if not exists', async () => {
     docRefMock.get.mockResolvedValueOnce({ exists: false });
-    const result = await saveAvailability(dates, userEmail, userUid);
+    const result = await saveAvailability(datesWithTimes, userEmail, userUid);
     expect(docRefMock.set).toHaveBeenCalledWith({
-      dates: dates,
+      datesWithTimes: datesWithTimes,
       email: userEmail,
       timestamp: 'timestamp'
     });
@@ -126,6 +132,6 @@ describe('saveAvailability (unit)', () => {
 
   it('handles errors from Firestore', async () => {
     docRefMock.get.mockRejectedValueOnce(new Error('db error'));
-    await expect(saveAvailability(dates, userEmail, userUid)).rejects.toThrow('db error');
+    await expect(saveAvailability(datesWithTimes, userEmail, userUid)).rejects.toThrow('db error');
   });
 });

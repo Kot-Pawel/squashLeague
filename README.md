@@ -73,6 +73,8 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
 
 This allows npm scripts to run in your user environment.
 
+3. If you want to use shortcut to create local server define environement variable DIR_GIT with path to your GitHub folder (eg. c/Users/Pawel/Documents/GitHub/)
+
 ## Adding New Tests
 
 - Place new test files in the `tests/` directory.

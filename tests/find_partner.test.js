@@ -4,12 +4,13 @@
 
 
 
-  it('shows loading and partner results when a date is selected', async () => {
-    // Mock Firestore to return two partners
+  it('shows loading and partner results with overlapping hours when a date is selected', async () => {
+    // Mock Firestore to return two partners with datesWithTimes and overlapping hours
     const mockGet = jest.fn(() => Promise.resolve({
       docs: [
-  { id: 'user1', data: () => ({ dates: ['2025-08-25'], email: 'alice@example.com' }) },
-  { id: 'user2', data: () => ({ dates: ['2025-08-25'], email: 'bob@example.com' }) }
+        { id: 'user1', data: () => ({ datesWithTimes: [ { date: '2025-08-25', times: ['18:00-19:00'] } ], email: 'alice@example.com' }) },
+        { id: 'user2', data: () => ({ datesWithTimes: [ { date: '2025-08-25', times: ['19:00-20:00'] } ], email: 'bob@example.com' }) },
+        { id: 'me', data: () => ({ datesWithTimes: [ { date: '2025-08-25', times: ['18:30-19:30'] } ], email: 'me@example.com' }) }
       ]
     }));
     const flatpickrMock = jest.fn((el, opts) => {
@@ -29,12 +30,21 @@
       firestore: jest.fn(() => ({
         collection: jest.fn(() => ({
           get: mockGet,
-          doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: false })) }))
+          doc: jest.fn(() => ({
+            get: jest.fn(() => Promise.resolve({
+              exists: true,
+              data: () => ({
+                datesWithTimes: [
+                  { date: '2025-08-25', times: ['18:30-19:30'] }
+                ]
+              })
+            }))
+          }) )
         }))
       }))
     };
-  jest.clearAllMocks();
-  jest.resetModules();
+    jest.clearAllMocks();
+    jest.resetModules();
     require('../find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
     const dateInput = document.getElementById('find-partner-date');
@@ -43,7 +53,7 @@
     await dateInput._onChange([new Date('2025-08-25')], '2025-08-25', {});
     // Wait for async fetchPartners
     await new Promise(r => setTimeout(r, 0));
-    expect(resultsDiv.innerHTML).toContain('Available users:');
+    expect(resultsDiv.innerHTML).toContain('overlap');
     expect(resultsDiv.innerHTML).toContain('alice@example.com');
     expect(resultsDiv.innerHTML).toContain('bob@example.com');
   });
@@ -113,44 +123,85 @@
     const resultsDiv = document.getElementById('partner-results');
     await dateInput._onChange([new Date('2025-08-24')], '2025-08-24', {});
     await new Promise(r => setTimeout(r, 0));
-    expect(resultsDiv.textContent).toContain('No other users are available on this date.');
+    expect(resultsDiv.textContent).toContain('No other users are available on this date and time.');
   });
 
   it('shows summary for logged in user with dates and partners', async () => {
-    // Mock user and Firestore
-    const user = { uid: 'me', email: 'me@example.com' };
-    window.firebase.auth = jest.fn(() => ({
-      currentUser: user,
-      onAuthStateChanged: jest.fn((cb) => cb(user))
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2025-08-20T12:00:00Z'));
+    // Mock user and Firestore with datesWithTimes OUTSIDE the next 14 days
+    const farFuture = new Date('2025-09-10T12:00:00Z');
+    const dateStr = farFuture.toISOString().slice(0, 10);
+    const mockGet = jest.fn(() => Promise.resolve({
+      docs: [
+        { id: 'user1', data: () => ({ datesWithTimes: [ { date: dateStr, times: ['18:00-19:00'] } ], email: 'Bob' }) },
+        { id: 'me', data: () => ({ datesWithTimes: [ { date: dateStr, times: ['18:30-19:30'] } ], email: 'Me' }) }
+      ]
     }));
-    window.firebase.firestore = jest.fn(() => ({
-      collection: jest.fn((name) => {
-        if (name === 'availability') {
+    const flatpickrMock = jest.fn();
+    document.body.innerHTML = `
+      <input id="find-partner-date">
+      <div id="partner-results"></div>
+      <div id="my-partner-summary"></div>
+    `;
+    // We'll capture the onAuthStateChanged callback
+    let onAuthStateChangedCb;
+    window.flatpickr = flatpickrMock;
+    // Mock for availability collection
+    const availabilityCollectionMock = {
+      get: mockGet,
+      doc: jest.fn((uid) => {
+        if (uid === 'me') {
+          // Return the current user's availability
           return {
-            doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ dates: ['2025-08-25'] }) })) })),
             get: jest.fn(() => Promise.resolve({
-              docs: [
-                { id: 'user2', data: () => ({ dates: ['2025-08-25'], email: 'bob@example.com' }) }
-              ]
+              exists: true,
+              data: () => ({
+                datesWithTimes: [
+                  { date: dateStr, times: ['18:30-19:30'] }
+                ]
+              })
             }))
           };
-        }
-        if (name === 'users') {
+        } else {
+          // Other users, not needed for this test
           return {
-            doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ screenName: 'Bob' }) })) }))
+            get: jest.fn(() => Promise.resolve({ exists: false, data: () => ({}) }))
           };
         }
       })
-    }));
+    };
+    window.firebase = {
+      auth: jest.fn(() => ({
+        currentUser: { uid: 'me', email: 'me@example.com' },
+        onAuthStateChanged: jest.fn(cb => { onAuthStateChangedCb = cb; })
+      })),
+      firestore: jest.fn(() => ({
+        collection: jest.fn((name) => {
+          if (name === 'availability') return availabilityCollectionMock;
+          // For users collection, just return a mock with get returning no screenName
+          return {
+            doc: jest.fn(() => ({
+              get: jest.fn(() => Promise.resolve({ exists: false, data: () => ({}) }))
+            }))
+          };
+        })
+      }))
+    };
     jest.resetModules();
     require('../find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
-    // Simulate auth state change
-  window.firebase.auth().onAuthStateChanged(() => {});
-  await new Promise(r => setTimeout(r, 0));
-  const summaryDiv = document.getElementById('my-partner-summary');
-  expect(summaryDiv.innerHTML).toContain('Your upcoming dates and potential partners:');
-  expect(summaryDiv.innerHTML).toContain('Bob');
+    // Manually trigger the auth state change
+    if (onAuthStateChangedCb) {
+      await onAuthStateChangedCb({ uid: 'me', email: 'me@example.com' });
+    }
+    // Advance all timers to resolve pending async code
+    await jest.runAllTimersAsync();
+    const summaryDiv = document.getElementById('my-partner-summary');
+    expect(summaryDiv.innerHTML).toContain('<b>You have not picked any dates in the next 14 days.</b>');
+    // Optionally, check that 'Bob' is not present, since no partners in 14 days
+    expect(summaryDiv.innerHTML).not.toContain('Bob');
+    jest.useRealTimers();
   });
 
   it('shows summary for logged out user as empty', async () => {

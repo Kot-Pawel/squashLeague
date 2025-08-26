@@ -9,7 +9,7 @@ describe('calendar.js DOM logic', () => {
     dateInput = document.getElementById('available-dates');
     flatpickrMock = jest.fn();
     window.flatpickr = flatpickrMock;
-    // Mock firebase
+    // Mock firebase with new datesWithTimes structure
     firebaseMock = {
       auth: jest.fn(() => ({
         currentUser: null,
@@ -18,7 +18,7 @@ describe('calendar.js DOM logic', () => {
       firestore: jest.fn(() => ({
         collection: jest.fn(() => ({
           doc: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ dates: ['2025-08-24', '2025-08-25'] }) }))
+            get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ datesWithTimes: [ { date: '2025-08-24', times: ['18:00-19:00'] }, { date: '2025-08-25', times: ['19:00-20:00'] } ] }) }))
           }))
         }))
       }))
