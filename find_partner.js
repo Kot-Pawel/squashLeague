@@ -54,7 +54,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     function timeSlotsOverlap(slotsA, slotsB) {
       function parseSlot(slot) {
         const [start, end] = slot.split('-');
-        return [start, end];
+        return [start.trim(), end.trim()];
       }
       for (const a of slotsA) {
         const [aStart, aEnd] = parseSlot(a);
@@ -74,7 +74,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       return null;
     }
 
-    async function fetchPartners(dateStr) {
+        async function fetchPartners(dateStr) {
       resultsDiv.textContent = 'Loading...';
       const db = firebase.firestore();
       const auth = firebase.auth();
@@ -145,21 +145,21 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         summaryDiv.innerHTML = 'Error loading your availability.';
         return;
       }
-      // Filter to next 14 days
+      // Filter to next 28 days
       const today = new Date();
-      const in14 = new Date();
-      in14.setDate(today.getDate() + 14);
-      const next14 = (myDatesWithTimes || []).filter(entry => {
+      const in28 = new Date();
+      in28.setDate(today.getDate() + 28);
+      const next28 = (myDatesWithTimes || []).filter(entry => {
         const d = new Date(entry.date);
-        return d >= today && d <= in14;
+        return d >= today && d <= in28;
       });
-      if (next14.length === 0) {
-        summaryDiv.innerHTML = '<b>You have not picked any dates in the next 14 days.</b>';
+      if (next28.length === 0) {
+        summaryDiv.innerHTML = '<b>You have not picked any dates in the next 28 days.</b>';
         return;
       }
       // For each date, find partners with overlapping hours
       let html = '<b>Your upcoming dates and potential partners:</b><ul>';
-      for (const entry of next14) {
+      for (const entry of next28) {
         const dateStr = entry.date;
         const mySlots = entry.times || [];
         let partners = [];

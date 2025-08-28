@@ -129,8 +129,8 @@
   it('shows summary for logged in user with dates and partners', async () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2025-08-20T12:00:00Z'));
-    // Mock user and Firestore with datesWithTimes OUTSIDE the next 14 days
-    const farFuture = new Date('2025-09-10T12:00:00Z');
+    // Mock user and Firestore with datesWithTimes OUTSIDE the next 28 days
+    const farFuture = new Date('2025-10-10T12:00:00Z');
     const dateStr = farFuture.toISOString().slice(0, 10);
     const mockGet = jest.fn(() => Promise.resolve({
       docs: [
@@ -198,8 +198,8 @@
     // Advance all timers to resolve pending async code
     await jest.runAllTimersAsync();
     const summaryDiv = document.getElementById('my-partner-summary');
-    expect(summaryDiv.innerHTML).toContain('<b>You have not picked any dates in the next 14 days.</b>');
-    // Optionally, check that 'Bob' is not present, since no partners in 14 days
+    expect(summaryDiv.innerHTML).toContain('<b>You have not picked any dates in the next 28 days.</b>');
+    // Optionally, check that 'Bob' is not present, since no partners in 28 days
     expect(summaryDiv.innerHTML).not.toContain('Bob');
     jest.useRealTimers();
   });
