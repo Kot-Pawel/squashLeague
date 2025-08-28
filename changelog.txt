@@ -1,0 +1,4 @@
+28th Aug 2025
+
+* change to look for partners in next 28 days instead of 14
+* fixed issue with dates not visible
