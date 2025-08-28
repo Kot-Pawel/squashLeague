@@ -32,7 +32,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         mode: "multiple",
         dateFormat: "Y-m-d",
         minDate: getMinDate(),
-        maxDate: getMaxDate()
+        maxDate: getMaxDate(),
+        locale: {
+      firstDayOfWeek: 1 // Monday
+      }
       });
     }
 
@@ -65,6 +68,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         maxDate: getMaxDate(),
         defaultDate: userDates,
         disable: userDates,
+        locale: {
+        firstDayOfWeek: 1 // Monday
+        },
         onDayCreate: function(dObj, dStr, fp, dayElem) {
           if (dayElem.classList.contains('flatpickr-disabled')) {
             const dateStr = dayElem.dateObj && fp.formatDate(dayElem.dateObj, "Y-m-d");
