@@ -1,7 +1,7 @@
 // accountManager.test.js
 // Automated tests for accountManager.js
 
-const { updateScreenName } = require('../accountManager');
+const { updateScreenName } = require('../src/accountManager');
 
 describe('updateScreenName', () => {
   let firestoreMock, collectionMock, docMock, updateMock;

@@ -25,7 +25,7 @@ describe('calendar.js DOM logic', () => {
     };
     window.firebase = firebaseMock;
     jest.resetModules();
-    require('../calendar');
+    require('../src/calendar');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
   });
 
@@ -50,7 +50,7 @@ describe('calendar.js DOM logic', () => {
       onAuthStateChanged: jest.fn(cb => cb(user))
     }));
     jest.resetModules();
-    require('../calendar');
+    require('../src/calendar');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
     // Wait for async initUserPicker
     await new Promise(r => setTimeout(r, 0));
@@ -63,7 +63,7 @@ describe('calendar.js DOM logic', () => {
 // tests/calendar.test.js
 // Automated tests for calendar.js pure functions
 
-const { getMinDate, getMaxDate, filterFutureDates } = require('../calendar');
+const { getMinDate, getMaxDate, filterFutureDates } = require('../src/calendar');
 
 describe('calendar.js pure functions', () => {
   describe('getMinDate', () => {

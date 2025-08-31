@@ -1,13 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-
-// javascript
 /**
  * @jest-environment jsdom
  */
 
+const fs = require('fs');
+const path = require('path');
+
 let firebaseMock, authMock, firestoreMock, collectionMock, whereMock, getMock, addMock, serverTimestampMock;
-const scriptPath = path.resolve(__dirname, '../match_request.js');
+const scriptPath = path.resolve(__dirname, '../src/match_request.js');
 
 beforeAll(() => {
     global.alert = jest.fn();

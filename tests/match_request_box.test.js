@@ -1,13 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-
-// match_requests_box.test.js
 /**
  * @jest-environment jsdom
  */
 
+const fs = require('fs');
+const path = require('path');
+
 let firebaseMock, userMock, dbMock, matchRequestsMock, usersMock;
-const scriptPath = path.resolve(__dirname, '../match_requests_box.js');
+const scriptPath = path.resolve(__dirname, '../src/match_requests_box.js');
 
 beforeEach(() => {
   document.body.innerHTML = `<div id="match-requests-list"></div>`;

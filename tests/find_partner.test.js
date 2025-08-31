@@ -45,7 +45,7 @@
     };
     jest.clearAllMocks();
     jest.resetModules();
-    require('../find_partner');
+    require('../src/find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
     const dateInput = document.getElementById('find-partner-date');
     const resultsDiv = document.getElementById('partner-results');
@@ -83,7 +83,7 @@
       }))
     };
     jest.resetModules();
-    require('../find_partner');
+    require('../src/find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
     const dateInput = document.getElementById('find-partner-date');
     const resultsDiv = document.getElementById('partner-results');
@@ -117,7 +117,7 @@
       }))
     };
     jest.resetModules();
-    require('../find_partner');
+    require('../src/find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
     const dateInput = document.getElementById('find-partner-date');
     const resultsDiv = document.getElementById('partner-results');
@@ -189,7 +189,7 @@
       }))
     };
     jest.resetModules();
-    require('../find_partner');
+    require('../src/find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
     // Manually trigger the auth state change
     if (onAuthStateChangedCb) {
@@ -210,7 +210,7 @@
       onAuthStateChanged: jest.fn((cb) => cb(null))
     }));
     jest.resetModules();
-    require('../find_partner');
+    require('../src/find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
   window.firebase.auth().onAuthStateChanged(() => {});
   await new Promise(r => setTimeout(r, 0));
@@ -257,7 +257,7 @@ describe('find_partner.js DOM logic', () => {
     };
     window.firebase = firebaseMock;
     jest.resetModules();
-    require('../find_partner');
+    require('../src/find_partner');
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
   });
 
@@ -283,7 +283,7 @@ describe('find_partner.js DOM logic', () => {
 // tests/find_partner.test.js
 // Automated tests for find_partner.js pure functions
 
-const { filterDatesInRange, buildPartnerListHtml } = require('../find_partner');
+const { filterDatesInRange, buildPartnerListHtml } = require('../src/find_partner');
 
 describe('find_partner.js pure functions', () => {
   describe('filterDatesInRange', () => {

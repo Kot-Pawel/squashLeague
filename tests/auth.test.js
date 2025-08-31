@@ -56,7 +56,7 @@ describe('auth.js DOM logic', () => {
   window.logoutUser = logoutUserMock;
   window.observeAuthState = observeAuthStateMock;
   jest.resetModules();
-  require('../auth');
+  require('../src/auth');
   document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
   });
 
@@ -119,7 +119,7 @@ describe('auth.js DOM logic', () => {
 // tests/auth.test.js
 // Automated tests for auth.js authentication functions
 
-const { registerUser, loginUser, logoutUser, observeAuthState } = require('../auth');
+const { registerUser, loginUser, logoutUser, observeAuthState } = require('../src/auth');
 
 describe('Authentication functions', () => {
   describe('registerUser', () => {
