@@ -181,7 +181,16 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     screenName = userDoc.data().screenName;
                   }
                 } catch {}
-                partners.push(`${screenName} <span style='color:green'>(overlap: ${overlap})</span>`);
+          partners.push(
+            `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
+                <button class="send-match-btn btn btn-sm btn-outline-primary"
+                title="Send Match Request"
+                data-userid="${doc.id}"
+                data-date="${dateStr}"
+                data-slot="${overlap}">
+                <i class="bi bi-send"></i>
+                </button>`
+                );
               }
             }
           }
