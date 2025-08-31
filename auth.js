@@ -93,12 +93,14 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       const dateInput = document.getElementById('available-dates');
       const availSection = document.getElementById('availability-section');
       const findPartnerSection = document.getElementById('find-partner-section');
+      const matchRequestsSection = document.getElementById('match-requests-section');
       if (user) {
         if (regForm) regForm.style.display = 'none';
         if (loginForm) loginForm.style.display = 'none';
         if (logoutBtn) logoutBtn.style.display = 'inline-block';
         if (availSection) availSection.style.display = '';
         if (findPartnerSection) findPartnerSection.style.display = '';
+        if (matchRequestsSection) matchRequestsSection.style.display = '';
         // Fetch and show screenName if available
         if (authStatus) {
           let displayName = user.email;
@@ -155,6 +157,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         if (resultDiv) resultDiv.style.display = 'none';
         if (availSection) availSection.style.display = 'none';
         if (findPartnerSection) findPartnerSection.style.display = 'none';
+        if (matchRequestsSection) matchRequestsSection.style.display = 'none';
         // Reset flatpickr to default state
         if (dateInput && window.flatpickr) {
           dateInput._flatpickr && dateInput._flatpickr.destroy();
