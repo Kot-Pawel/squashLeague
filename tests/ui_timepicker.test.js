@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 let form, dateInput;
-const scriptPath = path.resolve(__dirname, '../ui_timepicker.js');
+const scriptPath = path.resolve(__dirname, '../src/ui_timepicker.js');
 
 beforeAll(() => {
   global.alert = jest.fn();

@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
   const listDiv = document.getElementById('match-requests-list');
   if (!listDiv) return;

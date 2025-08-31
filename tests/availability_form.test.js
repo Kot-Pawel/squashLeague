@@ -29,7 +29,7 @@ describe('availability_form.js (form logic)', () => {
     saveAvailabilityMock = jest.fn(() => Promise.resolve());
     global.window.saveAvailability = saveAvailabilityMock;
     jest.resetModules();
-    require('../availability_form');
+    require('../src/availability_form');
   });
 
   afterEach(() => {
@@ -101,7 +101,7 @@ describe('saveAvailability (unit)', () => {
       auth: jest.fn(),
     };
     jest.resetModules();
-    saveAvailability = require('../availability_form').saveAvailability;
+    saveAvailability = require('../src/availability_form').saveAvailability;
   });
 
   afterEach(() => {

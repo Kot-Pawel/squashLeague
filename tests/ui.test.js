@@ -3,7 +3,7 @@
  * @jest-environment jsdom
  */
 // Automated tests for ui.js pure functions and DOM logic
-const { shouldShowRegisterBtn, toggleDivs } = require('../ui');
+const { shouldShowRegisterBtn, toggleDivs } = require('../src/ui');
 
 describe('ui.js pure functions', () => {
   describe('shouldShowRegisterBtn', () => {
@@ -47,7 +47,7 @@ describe('ui.js DOM logic', () => {
   });
 
   it('show-register-btn click triggers handler and toggles display', () => {
-    require('../ui');
+    require('../src/ui');
     const showRegisterBtn = document.getElementById('show-register-btn');
     const loginDiv = document.getElementById('login-div');
     const registrationDiv = document.getElementById('registration-div');
@@ -59,7 +59,7 @@ describe('ui.js DOM logic', () => {
   });
 
   it('back-to-login-btn click triggers handler and toggles display', () => {
-    require('../ui');
+    require('../src/ui');
     const showRegisterBtn = document.getElementById('show-register-btn');
     const backToLoginBtn = document.getElementById('back-to-login-btn');
     const loginDiv = document.getElementById('login-div');
@@ -78,7 +78,7 @@ describe('ui.js DOM logic', () => {
       <button id="back-to-login-btn"></button>
       <span id="auth-status"></span>
     `;
-    expect(() => require('../ui')).not.toThrow();
+    expect(() => require('../src/ui')).not.toThrow();
     // Try clicking back-to-login-btn, should not throw
     const backToLoginBtn = document.getElementById('back-to-login-btn');
     expect(() => backToLoginBtn.click()).not.toThrow();
@@ -91,7 +91,7 @@ describe('ui.js DOM logic', () => {
       <button id="back-to-login-btn"></button>
       <span id="auth-status"></span>
     `;
-    expect(() => require('../ui')).not.toThrow();
+    expect(() => require('../src/ui')).not.toThrow();
     // Try clicking show-register-btn, should not throw
     const showRegisterBtn = document.getElementById('show-register-btn');
     expect(() => showRegisterBtn.click()).not.toThrow();
@@ -104,14 +104,14 @@ describe('ui.js DOM logic', () => {
       <button id="back-to-login-btn"></button>
       <span id="auth-status"></span>
     `;
-    expect(() => require('../ui')).not.toThrow();
+    expect(() => require('../src/ui')).not.toThrow();
     // Try clicking show-register-btn, should not throw
     const showRegisterBtn = document.getElementById('show-register-btn');
     expect(() => showRegisterBtn.click()).not.toThrow();
   });
 
   it('MutationObserver triggers updateRegisterBtnVisibility', async () => {
-    require('../ui');
+    require('../src/ui');
     const showRegisterBtn = document.getElementById('show-register-btn');
     const authStatus = document.getElementById('auth-status');
     // Set to not logged in
@@ -131,14 +131,14 @@ describe('ui.js DOM logic', () => {
     input.id = 'available-dates';
     document.body.appendChild(input);
     // Manually dispatch DOMContentLoaded to trigger the logic
-    require('../ui');
+    require('../src/ui');
     document.dispatchEvent(new window.Event('DOMContentLoaded'));
     expect(window.flatpickr).toHaveBeenCalledWith('#available-dates', expect.objectContaining({ mode: 'multiple' }));
     delete window.flatpickr;
   });
 
   it('toggles registration and login divs when show-register-btn is clicked', () => {
-    require('../ui');
+    require('../src/ui');
     const showRegisterBtn = document.getElementById('show-register-btn');
     const loginDiv = document.getElementById('login-div');
     const registrationDiv = document.getElementById('registration-div');
@@ -152,7 +152,7 @@ describe('ui.js DOM logic', () => {
   });
 
   it('toggles back to login div when back-to-login-btn is clicked', () => {
-    require('../ui');
+    require('../src/ui');
     const showRegisterBtn = document.getElementById('show-register-btn');
     const backToLoginBtn = document.getElementById('back-to-login-btn');
     const loginDiv = document.getElementById('login-div');
@@ -166,7 +166,7 @@ describe('ui.js DOM logic', () => {
   });
 
   it('shows or hides register button based on auth-status text', () => {
-    require('../ui');
+    require('../src/ui');
     const showRegisterBtn = document.getElementById('show-register-btn');
     const authStatus = document.getElementById('auth-status');
     // Not logged in
