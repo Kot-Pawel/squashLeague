@@ -90,6 +90,45 @@ function saveAvailability(datesWithTimes, userEmail, userUid) {
     throw err;
   });
 }
+
+// Delete a single date from user's availability and related matchRequests
+function deleteAvailabilityDate(dateStr) {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    document.getElementById('result').textContent = 'You must be logged in to delete availability.';
+    return;
+  }
+  const db = firebase.firestore();
+  const docRef = db.collection('availability').doc(user.uid);
+
+  // Remove date from availability
+  docRef.get().then(docSnap => {
+    if (!docSnap.exists) return;
+    const prev = docSnap.data().datesWithTimes || [];
+    const filtered = prev.filter(entry => entry.date !== dateStr);
+    return docRef.update({ datesWithTimes: filtered });
+  }).then(() => {
+    // Delete related matchRequests (from or to this user, on this date)
+    const matchReqs = db.collection('matchRequests');
+    return Promise.all([
+      matchReqs.where('fromUserId', '==', user.uid).where('date', '==', dateStr).get(),
+      matchReqs.where('toUserId', '==', user.uid).where('date', '==', dateStr).get()
+    ]);
+  }).then(([fromSnap, toSnap]) => {
+    const batch = db.batch();
+    fromSnap.forEach(doc => batch.delete(doc.ref));
+    toSnap.forEach(doc => batch.delete(doc.ref));
+    return batch.commit();
+  }).then(() => {
+    document.getElementById('result').textContent = 'Date removed!';
+  }).catch(err => {
+    document.getElementById('result').textContent = 'Error: ' + err.message;
+  });
+}
+
+// Export for browser
+window.deleteAvailabilityDate = deleteAvailabilityDate;
+
 // Export for Node.js (tests) and browser
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { saveAvailability };

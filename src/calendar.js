@@ -71,12 +71,41 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         locale: {
         firstDayOfWeek: 1 // Monday
         },
-        onDayCreate: function(dObj, dStr, fp, dayElem) {
+         onDayCreate: function(dObj, dStr, fp, dayElem) {
           if (dayElem.classList.contains('flatpickr-disabled')) {
             const dateStr = dayElem.dateObj && fp.formatDate(dayElem.dateObj, "Y-m-d");
             if (dateStr && userDates.includes(dateStr)) {
               dayElem.title = 'You already picked this date';
               dayElem.classList.add('picked-date');
+              
+              // Add "X" button for removing the date
+              let removeBtn = document.createElement('span');
+              removeBtn.textContent = '✕';
+              removeBtn.style.cssText = `
+                color: #fff;
+                background: #dc3545;
+                border-radius: 50%;
+                font-size: 12px;
+                width: 16px;
+                height: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                top: 2px;
+                right: 2px;
+                cursor: pointer;
+                z-index: 10;
+              `;
+              removeBtn.title = 'Remove this date';
+              removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (window.deleteAvailabilityDate) {
+                  window.deleteAvailabilityDate(dateStr);
+                }
+              });
+              dayElem.style.position = 'relative';
+              dayElem.appendChild(removeBtn);
             }
           }
         }
