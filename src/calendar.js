@@ -101,7 +101,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
               removeBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 if (window.deleteAvailabilityDate) {
-                  window.deleteAvailabilityDate(dateStr);
+                  window.deleteAvailabilityDate(dateStr, function() {
+                    // Refresh the picker after successful deletion
+                    initUserPicker(firebase.auth().currentUser);
+                  });
                 }
               });
               dayElem.style.position = 'relative';

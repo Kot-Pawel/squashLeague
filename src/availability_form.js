@@ -92,7 +92,7 @@ function saveAvailability(datesWithTimes, userEmail, userUid) {
 }
 
 // Delete a single date from user's availability and related matchRequests
-function deleteAvailabilityDate(dateStr) {
+function deleteAvailabilityDate(dateStr, onSuccess) {
   const user = firebase.auth().currentUser;
   if (!user) {
     document.getElementById('result').textContent = 'You must be logged in to delete availability.';
@@ -121,6 +121,7 @@ function deleteAvailabilityDate(dateStr) {
     return batch.commit();
   }).then(() => {
     document.getElementById('result').textContent = 'Date removed!';
+    if (typeof onSuccess === 'function') onSuccess();
   }).catch(err => {
     document.getElementById('result').textContent = 'Error: ' + err.message;
   });
