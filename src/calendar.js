@@ -80,23 +80,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
               
               // Add "X" button for removing the date
               let removeBtn = document.createElement('span');
-              removeBtn.textContent = '✕';
-              removeBtn.style.cssText = `
-                color: #fff;
-                background: #dc3545;
-                border-radius: 50%;
-                font-size: 12px;
-                width: 16px;
-                height: 16px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: absolute;
-                top: 2px;
-                right: 2px;
-                cursor: pointer;
-                z-index: 10;
-              `;
+              removeBtn.textContent = '🗑️';
+              removeBtn.className = 'remove-date-btn';
               removeBtn.title = 'Remove this date';
               removeBtn.addEventListener('click', function(e) {
                 e.stopPropagation();

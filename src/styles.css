@@ -19,9 +19,28 @@
         box-shadow: none;
     }
 }
+
 .picked-date {
-    background: #4caf50 !important;
+    background: #83c2fd !important;
     color: #fff !important;
     border-radius: 50% !important;
+    position: relative;
 }
 
+/* Style for the remove ("X" or "🗑️") button inside picked dates */
+.picked-date .remove-date-btn {
+    color: #fff;
+    background: #f8fa86;
+    border-radius: 50%;
+    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    cursor: pointer;
+    z-index: 10;
+}
