@@ -71,12 +71,29 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         locale: {
         firstDayOfWeek: 1 // Monday
         },
-        onDayCreate: function(dObj, dStr, fp, dayElem) {
+         onDayCreate: function(dObj, dStr, fp, dayElem) {
           if (dayElem.classList.contains('flatpickr-disabled')) {
             const dateStr = dayElem.dateObj && fp.formatDate(dayElem.dateObj, "Y-m-d");
             if (dateStr && userDates.includes(dateStr)) {
               dayElem.title = 'You already picked this date';
               dayElem.classList.add('picked-date');
+              
+              // Add "X" button for removing the date
+              let removeBtn = document.createElement('span');
+              removeBtn.textContent = '🗑️';
+              removeBtn.className = 'remove-date-btn';
+              removeBtn.title = 'Remove this date';
+              removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (window.deleteAvailabilityDate) {
+                  window.deleteAvailabilityDate(dateStr, function() {
+                    // Refresh the picker after successful deletion
+                    initUserPicker(firebase.auth().currentUser);
+                  });
+                }
+              });
+              dayElem.style.position = 'relative';
+              dayElem.appendChild(removeBtn);
             }
           }
         }

@@ -149,10 +149,11 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       const today = new Date();
       const in28 = new Date();
       in28.setDate(today.getDate() + 28);
-      const next28 = (myDatesWithTimes || []).filter(entry => {
+      let next28 = (myDatesWithTimes || []).filter(entry => {
         const d = new Date(entry.date);
         return d >= today && d <= in28;
       });
+      next28 = next28.sort((a, b) => a.date.localeCompare(b.date));
       if (next28.length === 0) {
         summaryDiv.innerHTML = '<b>You have not picked any dates in the next 28 days.</b>';
         return;
