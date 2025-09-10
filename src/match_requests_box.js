@@ -32,6 +32,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
+      // Sort by date ascending (soonest first)
+      allRequests.sort((a, b) => {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        return 0;
+      });
+
       // Collect unique user IDs to fetch screenNames
       const userIds = new Set();
       allRequests.forEach(req => {
