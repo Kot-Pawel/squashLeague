@@ -159,15 +159,26 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         return;
       }
       // For each date, find partners with overlapping hours
-      let html = '<b>Your upcoming dates and potential partners:</b><ul>';
+            let html = '<b>Your upcoming dates and potential partners:</b><ul>';
       for (const entry of next28) {
         const dateStr = entry.date;
         const mySlots = entry.times || [];
         let partners = [];
         try {
+          // 1. Fetch all matchRequests sent by current user for this date
+          const matchReqSnap = await db.collection('matchRequests')
+            .where('fromUserId', '==', currentUser.uid)
+            .where('date', '==', dateStr)
+            .get();
+          const alreadyInvited = new Set();
+          matchReqSnap.forEach(doc => {
+            alreadyInvited.add(doc.data().toUserId);
+          });
+
           const snapshot = await db.collection('availability').get();
           for (const doc of snapshot.docs) {
             if (doc.id === currentUser.uid) continue;
+            if (alreadyInvited.has(doc.id)) continue; // Skip if already invited for this date
             const data = doc.data();
             if (!Array.isArray(data.datesWithTimes)) continue;
             const theirEntry = data.datesWithTimes.find(e => e.date === dateStr);
@@ -182,15 +193,15 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     screenName = userDoc.data().screenName;
                   }
                 } catch {}
-          partners.push(
-            `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
-                <button class="send-match-btn btn btn-sm btn-outline-primary"
-                title="Send Match Request"
-                data-userid="${doc.id}"
-                data-date="${dateStr}"
-                data-slot="${overlap}">
-                <i class="bi bi-send"></i>
-                </button>`
+                partners.push(
+                  `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
+                  <button class="send-match-btn btn btn-sm btn-outline-primary"
+                  title="Send Match Request"
+                  data-userid="${doc.id}"
+                  data-date="${dateStr}"
+                  data-slot="${overlap}">
+                  <i class="bi bi-send"></i>
+                  </button>`
                 );
               }
             }
