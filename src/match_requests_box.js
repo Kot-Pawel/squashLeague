@@ -13,19 +13,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const db = firebase.firestore();
     const uid = user.uid;
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
     try {
       const snapshot = await db.collection('matchRequests')
         .where('fromUserId', 'in', [uid])
+        .where('date', '>=', todayStr)
         .get();
       const snapshot2 = await db.collection('matchRequests')
         .where('toUserId', '==', uid)
+        .where('date', '>=', todayStr)
         .get();
 
       // Merge and deduplicate
       const requests = {};
       snapshot.forEach(doc => requests[doc.id] = {id: doc.id, ...doc.data()});
       snapshot2.forEach(doc => requests[doc.id] = {id: doc.id, ...doc.data()});
-      const allRequests = Object.values(requests);
+      let allRequests = Object.values(requests);
+
+      // Filter to only future dates
+      const today = new Date();
+      allRequests = allRequests.filter(req => {
+        // req.date is assumed to be "YYYY-MM-DD"
+        const reqDate = new Date(req.date);
+        // Only show requests for today or later
+        return reqDate >= today;
+      });
 
       if (allRequests.length === 0) {
         listDiv.innerHTML = 'No match requests yet.';
