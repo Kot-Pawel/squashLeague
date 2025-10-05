@@ -24,6 +24,7 @@
     <script src="src/ui_timepicker.js"></script>
     <script src="src/match_request.js"></script>
     <script src="src/match_requests_box.js"></script>
+    <script src="src/player_stats.js"></script>
 </head>
 <body>
         <div class="container py-4">
@@ -55,6 +56,7 @@
                     <div id="registration-result" class="mb-3"></div>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary w-100" style="display:none;">Logout</button>
+                <button id="show-player-stats-btn" class="btn btn-info w-100 mb-4">Show Player Stats</button>
             </div>
 
             <!-- Availability Section -->
@@ -90,6 +92,10 @@
                     <div class="card-body">
                 <div id="match-requests-list">Loading...</div>
                 </div>
+            </div>
+            <div id="player-stats-section" style="display:none;">
+                <button id="back-to-main-btn" class="btn btn-secondary mb-3">&larr; Back</button>
+                <div id="player-stats-list">Loading...</div>
             </div>
         </div>
 </body>

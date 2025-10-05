@@ -13,6 +13,16 @@
         { id: 'me', data: () => ({ datesWithTimes: [ { date: '2025-08-25', times: ['18:30-19:30'] } ], email: 'me@example.com' }) }
       ]
     }));
+
+    // Mock for matchRequests collection with chainable where() and get()
+    function mockMatchRequestsCollection() {
+      const chain = {
+        where: () => chain,
+        get: jest.fn(() => Promise.resolve({ empty: true, docs: [] })) // No accepted matches
+      };
+      return chain;
+    }
+
     const flatpickrMock = jest.fn((el, opts) => {
       if (opts && typeof opts.onChange === 'function') {
         el._onChange = opts.onChange;
@@ -28,19 +38,35 @@
     window.firebase = {
       auth: jest.fn(() => ({ currentUser: { uid: 'me', email: 'me@example.com' }, onAuthStateChanged: jest.fn() })),
       firestore: jest.fn(() => ({
-        collection: jest.fn(() => ({
-          get: mockGet,
-          doc: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({
-              exists: true,
-              data: () => ({
-                datesWithTimes: [
-                  { date: '2025-08-25', times: ['18:30-19:30'] }
-                ]
-              })
-            }))
-          }) )
-        }))
+        collection: jest.fn((name) => {
+          if (name === 'availability') {
+            return {
+              get: mockGet,
+              doc: jest.fn(() => ({
+                get: jest.fn(() => Promise.resolve({
+                  exists: true,
+                  data: () => ({
+                    datesWithTimes: [
+                      { date: '2025-08-25', times: ['18:30-19:30'] }
+                    ]
+                  })
+                }))
+              }))
+            };
+          }
+          if (name === 'matchRequests') {
+            return mockMatchRequestsCollection();
+          }
+          if (name === 'users') {
+            return {
+              doc: jest.fn(() => ({
+                get: jest.fn(() => Promise.resolve({ exists: false, data: () => ({}) }))
+              }))
+            };
+          }
+          // Default fallback
+          return {};
+        })
       }))
     };
     jest.clearAllMocks();
@@ -76,10 +102,23 @@
     window.firebase = {
       auth: jest.fn(() => ({ currentUser: null, onAuthStateChanged: jest.fn() })),
       firestore: jest.fn(() => ({
-        collection: jest.fn(() => ({
-          get: jest.fn(() => { throw new Error('fail'); }),
-          doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: false })) }))
-        }))
+        collection: jest.fn((name) => {
+if (name === 'availability') {
+  return {
+    get: jest.fn(() => { throw new Error('fail'); }), // <-- throw error here
+    doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: false })) }))
+  };
+        } 
+          if (name === 'matchRequests') {
+            // Chainable mock for matchRequests
+            const chain = {
+              where: () => chain,
+              get: jest.fn(() => Promise.resolve({ empty: true, docs: [] }))
+            };
+            return chain;
+          }
+          return {};
+        })
       }))
     };
     jest.resetModules();
@@ -110,10 +149,25 @@
     window.firebase = {
       auth: jest.fn(() => ({ currentUser: null, onAuthStateChanged: jest.fn() })),
       firestore: jest.fn(() => ({
-        collection: jest.fn(() => ({
-          get: jest.fn(() => Promise.resolve({ docs: [] })),
-          doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: false })) }))
-        }))
+        collection: jest.fn((name) => {
+
+if (name === 'availability') {
+  return {
+    get: jest.fn(() => Promise.resolve({ docs: [] })), // <-- Return empty docs array
+    doc: jest.fn(() => ({ get: jest.fn(() => Promise.resolve({ exists: false })) }))
+  };
+}
+
+          if (name === 'matchRequests') {
+            // Chainable mock for matchRequests
+            const chain = {
+              where: () => chain,
+              get: jest.fn(() => Promise.resolve({ empty: true, docs: [] }))
+            };
+            return chain;
+          }
+          return {};
+        })
       }))
     };
     jest.resetModules();
@@ -138,13 +192,20 @@
         { id: 'me', data: () => ({ datesWithTimes: [ { date: dateStr, times: ['18:30-19:30'] } ], email: 'Me' }) }
       ]
     }));
+    // Chainable mock for matchRequests
+    function mockMatchRequestsCollection() {
+      const chain = {
+        where: () => chain,
+        get: jest.fn(() => Promise.resolve({ empty: true, docs: [] }))
+      };
+      return chain;
+    }
     const flatpickrMock = jest.fn();
     document.body.innerHTML = `
       <input id="find-partner-date">
       <div id="partner-results"></div>
       <div id="my-partner-summary"></div>
     `;
-    // We'll capture the onAuthStateChanged callback
     let onAuthStateChangedCb;
     window.flatpickr = flatpickrMock;
     // Mock for availability collection
@@ -179,6 +240,7 @@
       firestore: jest.fn(() => ({
         collection: jest.fn((name) => {
           if (name === 'availability') return availabilityCollectionMock;
+          if (name === 'matchRequests') return mockMatchRequestsCollection();
           // For users collection, just return a mock with get returning no screenName
           return {
             doc: jest.fn(() => ({
@@ -247,12 +309,29 @@ describe('find_partner.js DOM logic', () => {
         onAuthStateChanged: jest.fn()
       })),
       firestore: jest.fn(() => ({
-        collection: jest.fn(() => ({
-          doc: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ dates: ['2025-08-24', '2025-08-25'] }) }))
-          })),
-          get: jest.fn(() => Promise.resolve({ docs: [], forEach: jest.fn() }))
-        }))
+        collection: jest.fn((name) => {
+          if (name === 'availability') {
+            return {
+              doc: jest.fn(() => ({
+                get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ dates: ['2025-08-24', '2025-08-25'] }) }))
+              })),
+              get: jest.fn(() => Promise.resolve({ docs: [], forEach: jest.fn() }))
+            };
+          }
+          if (name === 'matchRequests') {
+            // Chainable mock for matchRequests
+            const chain = {
+              where: () => chain,
+              get: jest.fn(() => Promise.resolve({ empty: true, docs: [] }))
+            };
+            return chain;
+          }
+          return {
+            doc: jest.fn(() => ({
+              get: jest.fn(() => Promise.resolve({ exists: false, data: () => ({}) }))
+            }))
+          };
+        })
       }))
     };
     window.firebase = firebaseMock;
