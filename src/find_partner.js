@@ -74,148 +74,198 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       return null;
     }
 
-        async function fetchPartners(dateStr) {
-      resultsDiv.textContent = 'Loading...';
-      const db = firebase.firestore();
-      const auth = firebase.auth();
-      const currentUser = auth.currentUser;
-      let partners = [];
-      let mySlots = [];
-      try {
-        // Get current user's slots for this date
-        if (currentUser) {
-          const myDoc = await db.collection('availability').doc(currentUser.uid).get();
-          if (myDoc.exists && Array.isArray(myDoc.data().datesWithTimes)) {
-            const entry = myDoc.data().datesWithTimes.find(e => e.date === dateStr);
-            if (entry && Array.isArray(entry.times)) {
-              mySlots = entry.times;
-            }
-          }
+      async function fetchPartners(dateStr) {
+  resultsDiv.textContent = 'Loading...';
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const currentUser = auth.currentUser;
+  let partners = [];
+  let mySlots = [];
+  try {
+    // Get current user's slots for this date
+    if (currentUser) {
+      const myDoc = await db.collection('availability').doc(currentUser.uid).get();
+      if (myDoc.exists && Array.isArray(myDoc.data().datesWithTimes)) {
+        const entry = myDoc.data().datesWithTimes.find(e => e.date === dateStr);
+        if (entry && Array.isArray(entry.times)) {
+          mySlots = entry.times;
         }
-        const snapshot = await db.collection('availability').get();
-        for (const doc of snapshot.docs) {
-          if (currentUser && doc.id === currentUser.uid) continue;
-          const data = doc.data();
-          if (!Array.isArray(data.datesWithTimes)) continue;
-          const entry = data.datesWithTimes.find(e => e.date === dateStr);
-          if (entry && Array.isArray(entry.times)) {
-            const overlap = timeSlotsOverlap(mySlots, entry.times);
-            if (overlap) {
-              // Fetch screenName from users collection
-              let screenName = data.email;
-              try {
-                const userDoc = await db.collection('users').doc(doc.id).get();
-                if (userDoc.exists && userDoc.data().screenName) {
-                  screenName = userDoc.data().screenName;
-                }
-              } catch {}
-              partners.push(`${screenName} <span style='color:green'>(overlap: ${overlap})</span>`);
-            }
-          }
-        }
-      } catch (err) {
-        resultsDiv.textContent = 'Error fetching partners: ' + err.message;
-        return;
-      }
-      if (partners.length === 0) {
-        resultsDiv.textContent = 'No other users are available on this date and time.';
-      } else {
-        resultsDiv.innerHTML = '<b>Available users with overlapping hours:</b><ul>' + partners.map(name => `<li>${name}</li>`).join('') + '</ul>';
       }
     }
+    const snapshot = await db.collection('availability').get();
+    for (const doc of snapshot.docs) {
+      if (currentUser && doc.id === currentUser.uid) continue;
+      const data = doc.data();
+      if (!Array.isArray(data.datesWithTimes)) continue;
+      const entry = data.datesWithTimes.find(e => e.date === dateStr);
+      if (entry && Array.isArray(entry.times)) {
+        const overlap = timeSlotsOverlap(mySlots, entry.times);
+        if (overlap) {
+          // Check if this partner already has an accepted match on this date
+          const acceptedMatchSnap = await db.collection('matchRequests')
+            .where('date', '==', dateStr)
+            .where('status', '==', 'accepted')
+            .where('toUserId', '==', doc.id)
+            .get();
+          const acceptedAsTo = !acceptedMatchSnap.empty;
+          const acceptedMatchSnap2 = await db.collection('matchRequests')
+            .where('date', '==', dateStr)
+            .where('status', '==', 'accepted')
+            .where('fromUserId', '==', doc.id)
+            .get();
+          const acceptedAsFrom = !acceptedMatchSnap2.empty;
+          const alreadyMatched = acceptedAsTo || acceptedAsFrom;
+
+          // Fetch screenName from users collection
+          let screenName = data.email;
+          try {
+            const userDoc = await db.collection('users').doc(doc.id).get();
+            if (userDoc.exists && userDoc.data().screenName) {
+              screenName = userDoc.data().screenName;
+            }
+          } catch {}
+
+          if (!alreadyMatched) {
+            partners.push(
+              `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
+              <button class="send-match-btn btn btn-sm btn-outline-primary"
+              title="Send Match Request"
+              data-userid="${doc.id}"
+              data-date="${dateStr}"
+              data-slot="${overlap}">
+              <i class="bi bi-send"></i>
+              </button>`
+            );
+          } else {
+            partners.push(
+              `${screenName} <span style='color:gray'>(already matched on this date)</span>`
+            );
+          }
+        }
+      }
+    }
+  } catch (err) {
+    resultsDiv.textContent = 'Error fetching partners: ' + err.message;
+    return;
+  }
+  if (partners.length === 0) {
+    resultsDiv.textContent = 'No other users are available on this date and time.';
+  } else {
+    resultsDiv.innerHTML = '<b>Available users with overlapping hours:</b><ul>' + partners.map(name => `<li>${name}</li>`).join('') + '</ul>';
+  }
+}
 
     // Show user's picked dates and partners for next 14 days
-    async function showMyPartnerSummary() {
-      const summaryDiv = document.getElementById('my-partner-summary');
-      const db = firebase.firestore();
-      const auth = firebase.auth();
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        summaryDiv.innerHTML = '';
-        return;
-      }
-      // Get user's picked dates and times (new format)
-      let myDatesWithTimes = [];
-      try {
-        const doc = await db.collection('availability').doc(currentUser.uid).get();
-        if (doc.exists && Array.isArray(doc.data().datesWithTimes)) {
-          myDatesWithTimes = doc.data().datesWithTimes;
-        }
-      } catch (err) {
-        summaryDiv.innerHTML = 'Error loading your availability.';
-        return;
-      }
-      // Filter to next 28 days
-      const today = new Date();
-      const in28 = new Date();
-      in28.setDate(today.getDate() + 28);
-      let next28 = (myDatesWithTimes || []).filter(entry => {
-        const d = new Date(entry.date);
-        return d >= today && d <= in28;
+   async function showMyPartnerSummary() {
+  const summaryDiv = document.getElementById('my-partner-summary');
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    summaryDiv.innerHTML = '';
+    return;
+  }
+  let myDatesWithTimes = [];
+  try {
+    const doc = await db.collection('availability').doc(currentUser.uid).get();
+    if (doc.exists && Array.isArray(doc.data().datesWithTimes)) {
+      myDatesWithTimes = doc.data().datesWithTimes;
+    }
+  } catch (err) {
+    summaryDiv.innerHTML = 'Error loading your availability.';
+    return;
+  }
+  const today = new Date();
+  const in28 = new Date();
+  in28.setDate(today.getDate() + 28);
+  let next28 = (myDatesWithTimes || []).filter(entry => {
+    const d = new Date(entry.date);
+    return d >= today && d <= in28;
+  });
+  next28 = next28.sort((a, b) => a.date.localeCompare(b.date));
+  if (next28.length === 0) {
+    summaryDiv.innerHTML = '<b>You have not picked any dates in the next 28 days.</b>';
+    return;
+  }
+  let html = '<b>Your upcoming dates and potential partners:</b><ul>';
+  for (const entry of next28) {
+    const dateStr = entry.date;
+    const mySlots = entry.times || [];
+    let partners = [];
+    try {
+      // 1. Fetch all matchRequests sent by current user for this date
+      const matchReqSnap = await db.collection('matchRequests')
+        .where('fromUserId', '==', currentUser.uid)
+        .where('date', '==', dateStr)
+        .get();
+      const alreadyInvited = new Set();
+      matchReqSnap.forEach(doc => {
+        alreadyInvited.add(doc.data().toUserId);
       });
-      next28 = next28.sort((a, b) => a.date.localeCompare(b.date));
-      if (next28.length === 0) {
-        summaryDiv.innerHTML = '<b>You have not picked any dates in the next 28 days.</b>';
-        return;
-      }
-      // For each date, find partners with overlapping hours
-            let html = '<b>Your upcoming dates and potential partners:</b><ul>';
-      for (const entry of next28) {
-        const dateStr = entry.date;
-        const mySlots = entry.times || [];
-        let partners = [];
-        try {
-          // 1. Fetch all matchRequests sent by current user for this date
-          const matchReqSnap = await db.collection('matchRequests')
-            .where('fromUserId', '==', currentUser.uid)
-            .where('date', '==', dateStr)
-            .get();
-          const alreadyInvited = new Set();
-          matchReqSnap.forEach(doc => {
-            alreadyInvited.add(doc.data().toUserId);
-          });
 
-          const snapshot = await db.collection('availability').get();
-          for (const doc of snapshot.docs) {
-            if (doc.id === currentUser.uid) continue;
-            if (alreadyInvited.has(doc.id)) continue; // Skip if already invited for this date
-            const data = doc.data();
-            if (!Array.isArray(data.datesWithTimes)) continue;
-            const theirEntry = data.datesWithTimes.find(e => e.date === dateStr);
-            if (theirEntry && Array.isArray(theirEntry.times)) {
-              const overlap = timeSlotsOverlap(mySlots, theirEntry.times);
-              if (overlap) {
-                // Fetch screenName from users collection
-                let screenName = data.email;
-                try {
-                  const userDoc = await db.collection('users').doc(doc.id).get();
-                  if (userDoc.exists && userDoc.data().screenName) {
-                    screenName = userDoc.data().screenName;
-                  }
-                } catch {}
-                partners.push(
-                  `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
-                  <button class="send-match-btn btn btn-sm btn-outline-primary"
-                  title="Send Match Request"
-                  data-userid="${doc.id}"
-                  data-date="${dateStr}"
-                  data-slot="${overlap}">
-                  <i class="bi bi-send"></i>
-                  </button>`
-                );
+      const snapshot = await db.collection('availability').get();
+      for (const doc of snapshot.docs) {
+        if (doc.id === currentUser.uid) continue;
+        if (alreadyInvited.has(doc.id)) continue;
+        const data = doc.data();
+        if (!Array.isArray(data.datesWithTimes)) continue;
+        const theirEntry = data.datesWithTimes.find(e => e.date === dateStr);
+        if (theirEntry && Array.isArray(theirEntry.times)) {
+          const overlap = timeSlotsOverlap(mySlots, theirEntry.times);
+          if (overlap) {
+            // --- NEW: Check if this partner already has an accepted match on this date ---
+            const acceptedMatchSnap = await db.collection('matchRequests')
+              .where('date', '==', dateStr)
+              .where('status', '==', 'accepted')
+              .where('toUserId', '==', doc.id)
+              .get();
+            const acceptedAsTo = !acceptedMatchSnap.empty;
+            const acceptedMatchSnap2 = await db.collection('matchRequests')
+              .where('date', '==', dateStr)
+              .where('status', '==', 'accepted')
+              .where('fromUserId', '==', doc.id)
+              .get();
+            const acceptedAsFrom = !acceptedMatchSnap2.empty;
+            const alreadyMatched = acceptedAsTo || acceptedAsFrom;
+            // ------------------------------------------------------
+
+            // Fetch screenName from users collection
+            let screenName = data.email;
+            try {
+              const userDoc = await db.collection('users').doc(doc.id).get();
+              if (userDoc.exists && userDoc.data().screenName) {
+                screenName = userDoc.data().screenName;
               }
+            } catch {}
+            if (!alreadyMatched) {
+              partners.push(
+                `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
+                <button class="send-match-btn btn btn-sm btn-outline-primary"
+                title="Send Match Request"
+                data-userid="${doc.id}"
+                data-date="${dateStr}"
+                data-slot="${overlap}">
+                <i class="bi bi-send"></i>
+                </button>`
+              );
+            } else {
+              partners.push(
+                `${screenName} <span style='color:gray'>(already matched on this date)</span>`
+              );
             }
           }
-        } catch (err) {
-          partners = ['Error fetching partners'];
         }
-        html += `<li><b>${dateStr}</b> (your hours: ${mySlots.join(', ')}): `;
-        html += buildPartnerListHtml(partners);
-        html += '</li>';
       }
-      html += '</ul>';
-      summaryDiv.innerHTML = html;
+    } catch (err) {
+      partners = ['Error fetching partners'];
     }
+    html += `<li><b>${dateStr}</b> (your hours: ${mySlots.join(', ')}): `;
+    html += buildPartnerListHtml(partners);
+    html += '</li>';
+  }
+  html += '</ul>';
+  summaryDiv.innerHTML = html;
+}
 
     // Listen for auth state changes to update summary
     firebase.auth().onAuthStateChanged(function(user) {
