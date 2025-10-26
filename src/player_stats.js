@@ -27,11 +27,30 @@ document.addEventListener('DOMContentLoaded', function() {
           gameCount[uid] = (gameCount[uid] || 0) + 1;
         });
       });
-      let html = '<ul>';
+
+// Build an array of users with game counts so we can sort them
+      const users = [];
       usersSnap.forEach(doc => {
-        const screenName = doc.data().screenName || doc.data().email;
-        const games = gameCount[doc.id] || 0;
-        html += `<li><b>${screenName}</b>: ${games} games played</li>`;
+        const d = doc.data();
+        users.push({
+          id: doc.id,
+          screenName: d.screenName || d.email || 'Unknown',
+          games: gameCount[doc.id] || 0
+        });
+      });
+
+      // Exclude users whose screenName contains the string "testUser"
+      const filteredUsers = users.filter(u => !u.screenName.startsWith('testUser'));
+
+      // Sort by games played (descending), then by screenName (ascending) for tie-breaker
+      filteredUsers.sort((a, b) => {
+        if (b.games !== a.games) return b.games - a.games;
+        return a.screenName.localeCompare(b.screenName);
+      });
+
+      let html = '<ul>';
+      filteredUsers.forEach(u => {
+        html += `<li><b>${u.screenName}</b>: ${u.games} games played</li>`;
       });
       html += '</ul>';
       statsList.innerHTML = html;
