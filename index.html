@@ -1,22 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <title>Squash League</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> <!-- flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/timePicker/timePicker.min.css"> <!-- flatpickr time plugin CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/timePicker/timePicker.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="src/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <!-- flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/timePicker/timePicker.min.js"></script> <!-- flatpickr time plugin JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/timePicker/timePicker.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Motion One — lightweight animation library (~3 KB gzipped) -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.js"></script>
+    <script>window.Motion = window.Motion || Motion;</script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script> <!-- Firebase App (the core Firebase SDK) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script> <!-- Firebase Analytics SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> <!-- Firebase Auth SDK -->
     <script src="src/firebase.js"></script>
+    <script src="src/theme.js"></script>
+    <script src="src/toast.js"></script>
     <script src="src/auth.js"></script>
     <script src="src/calendar.js"></script>
     <script src="src/find_partner.js"></script>
@@ -26,12 +31,49 @@
     <script src="src/match_request.js"></script>
     <script src="src/match_requests_box.js"></script>
     <script src="src/player_stats.js"></script>
+    <script src="src/animations.js"></script>
 </head>
 <body>
-        <div class="container py-4">
-            <div class="mb-4 text-center">
-                <img src="img/banner.png" alt="Squash League Banner" class="img-fluid" style="max-width:100%;height:auto;">
+        <!-- Theme toggle — always visible, top-right corner -->
+        <button id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">🌙</button>
+
+        <!-- Hamburger — mobile only, opens sidebar -->
+        <button id="sidebar-hamburger" class="sidebar-hamburger" aria-label="Open menu">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- ── Sidebar nav (desktop) ─────────────────────────────── -->
+        <nav class="app-sidebar" id="app-sidebar" aria-label="Main navigation">
+            <div class="sidebar-brand">
+                <img src="img/banner.png" alt="Squash League" class="sidebar-logo">
             </div>
+            <ul class="sidebar-nav">
+                <li><a href="#availability-section"   class="sidebar-link active" data-section="availability-section">
+                    <i class="bi bi-calendar3"></i><span>Availability</span></a></li>
+                <li><a href="#find-partner-section"   class="sidebar-link" data-section="find-partner-section">
+                    <i class="bi bi-people-fill"></i><span>Find Partner</span></a></li>
+                <li><a href="#match-requests-section" class="sidebar-link" data-section="match-requests-section">
+                    <i class="bi bi-envelope-check-fill"></i><span>My Matches</span></a></li>
+                <li><a href="#player-stats-section"   class="sidebar-link" data-section="player-stats-section">
+                    <i class="bi bi-trophy-fill"></i><span>Leaderboard</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- ── Bottom nav (mobile) ───────────────────────────────── -->
+        <nav class="bottom-nav" id="bottom-nav" aria-label="Mobile navigation">
+            <a href="#availability-section"   class="bottom-nav__item active" data-section="availability-section">
+                <i class="bi bi-calendar3"></i><span>Availability</span></a>
+            <a href="#find-partner-section"   class="bottom-nav__item" data-section="find-partner-section">
+                <i class="bi bi-people-fill"></i><span>Partners</span></a>
+            <a href="#match-requests-section" class="bottom-nav__item" data-section="match-requests-section">
+                <i class="bi bi-envelope-check-fill"></i><span>Matches</span></a>
+            <a href="#player-stats-section"   class="bottom-nav__item" data-section="player-stats-section">
+                <i class="bi bi-trophy-fill"></i><span>Board</span></a>
+        </nav>
+
+        <!-- ── Main app shell ────────────────────────────────────── -->
+        <div class="app-main">
+        <div class="container py-4">
             <!-- Floating Login/Registration Box -->
             <div class="login-floating-box" id="login-section">
                 <div id="auth-status" class="mb-2">Not logged in.</div>
@@ -42,7 +84,6 @@
                         <div class="mb-2"><label>Password: <input type="password" id="login-password" class="form-control" required autocomplete="current-password"></label></div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
-                    <div id="login-result" class="mb-2"></div>
                     <p class="mb-2"><a href="#" id="forgot-password-link">Forgot password?</a></p>
                     <button id="show-register-btn" class="btn btn-outline-success w-100 mb-2">Not a user? Register!</button>
                 </div>
@@ -55,10 +96,11 @@
                         <div class="mb-2"><label>Password: <input type="password" id="reg-password" class="form-control" required autocomplete="current-password"></label></div>
                         <button type="submit" class="btn btn-success w-100">Register</button>
                     </form>
-                    <div id="registration-result" class="mb-3"></div>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary w-100" style="display:none;">Logout</button>
-                <button id="show-player-stats-btn" class="btn btn-info w-100 mb-4">Show Player Stats</button>
+                <!-- Hidden stubs — navigation is now handled by the sidebar -->
+                <button id="show-player-stats-btn" style="display:none;" aria-hidden="true"></button>
+                <button id="back-to-main-btn"      style="display:none;" aria-hidden="true"></button>
             </div>
 
                         <!-- Forgot Password Modal -->
@@ -122,9 +164,17 @@
                 </div>
             </div>
             <div id="player-stats-section" style="display:none;">
-                <button id="back-to-main-btn" class="btn btn-secondary mb-3">&larr; Back</button>
-                <div id="player-stats-list">Loading...</div>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div>
+                        <div class="stats-heading">🏆 Leaderboard</div>
+                        <div class="stats-subheading">Ranked by accepted matches played</div>
+                    </div>
+                </div>
+                <div id="player-stats-list" class="mt-3">
+                    <p class="loading-msg text-center py-4">Loading stats…</p>
+                </div>
             </div>
-        </div>
+        </div><!-- /.container -->
+        </div><!-- /.app-main -->
 </body>
 </html>

@@ -8,7 +8,7 @@ function registerUser({ screenName, email, password, firebase }) {
       return db.collection('users').doc(userCredential.user.uid).set({
         screenName,
         email
-      });
+      }, { merge: true });
     });
 }
 
@@ -32,6 +32,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     const auth = firebase.auth();
 
+    // Graceful fallback: toast.js may not be loaded in test environments
+    const _toast = window.toast || { show: () => {} };
+
     // Use window-scoped functions if available (for testability)
     const regUserFn = window.registerUser || registerUser;
     const loginUserFn = window.loginUser || loginUser;
@@ -48,10 +51,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const password = document.getElementById('reg-password').value;
         regUserFn({ screenName, email, password, firebase })
           .then(() => {
-            document.getElementById('registration-result').textContent = 'Registration successful! You can now submit your availability.';
+            _toast.show('Registration successful! You can now submit your availability.', 'success');
           })
           .catch((error) => {
-            document.getElementById('registration-result').textContent = 'Error: ' + error.message;
+            _toast.show('Registration failed: ' + error.message, 'error');
           });
       });
     }
@@ -65,10 +68,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const password = document.getElementById('login-password').value;
         loginUserFn({ email, password, firebase })
           .then(() => {
-            document.getElementById('login-result').textContent = 'Login successful!';
+            _toast.show('Login successful!', 'success');
           })
           .catch((error) => {
-            document.getElementById('login-result').textContent = 'Error: ' + error.message;
+            _toast.show('Login failed: ' + error.message, 'error');
           });
       });
     }
@@ -137,28 +140,25 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
           // fallback to prompt if bootstrap modal not available
           const email = window.prompt('Enter your account email for password recovery:', prefill);
           if (!email) return;
-          // call compat API
+          const msg = 'If an account with that email exists, a password reset email has been sent.';
+
+          // Helper: show message via toast if available, and always write to #login-result for test-ability
+          const showResetMsg = () => {
+            _toast.show(msg, 'success', 5000);
+            const loginResult = document.getElementById('login-result');
+            if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+          };
+
           try {
             firebase.auth().sendPasswordResetEmail(email)
-              .then(() => {
-                const loginResult = document.getElementById('login-result');
-                const msg = 'If an account with that email exists, a password reset email has been sent.';
-                if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-                else alert(msg);
-              })
+              .then(() => { showResetMsg(); })
               .catch((err) => {
                 console.error('sendPasswordResetEmail error:', err);
-                const loginResult = document.getElementById('login-result');
-                const msg = 'If an account with that email exists, a password reset email has been sent.';
-                if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-                else alert(msg);
+                showResetMsg();
               });
           } catch (err) {
             console.error('Password reset failed (firebase missing):', err);
-            const loginResult = document.getElementById('login-result');
-            const msg = 'If an account with that email exists, a password reset email has been sent.';
-            if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-            else alert(msg);
+            showResetMsg();
           }
         }
       });
@@ -178,23 +178,17 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         // disable send button while in flight
         sendBtn.disabled = true;
         // call compat API
+        const msg = 'If an account with that email exists, a password reset email has been sent.';
         try {
           firebase.auth().sendPasswordResetEmail(email)
             .then(() => {
-              // show success inside modal and in login area
-              const msg = 'If an account with that email exists, a password reset email has been sent.';
-              if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
-              const loginResult = document.getElementById('login-result');
-              if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-              // hide modal after short delay so user sees success message
+              _toast.show(msg, 'success', 5000);
               setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
             })
             .catch((err) => {
               console.error('sendPasswordResetEmail error:', err);
-              const msg = 'If an account with that email exists, a password reset email has been sent.';
-              if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
-              const loginResult = document.getElementById('login-result');
-              if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+              // Always show the same neutral message to avoid email enumeration
+              _toast.show(msg, 'success', 5000);
               setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
             })
             .finally(() => {
@@ -202,10 +196,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             });
         } catch (err) {
           console.error('Password reset failed (firebase missing):', err);
-          const msg = 'If an account with that email exists, a password reset email has been sent.';
-          if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
-          const loginResult = document.getElementById('login-result');
-          if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+          _toast.show(msg, 'success', 5000);
           setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
           sendBtn.disabled = false;
         }
@@ -256,8 +247,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
               displayName = userDoc.data().screenName;
               screenName = displayName;
             }
+            // Load user's saved theme preference from Firestore
+            if (window.themeManager) {
+              await window.themeManager.setUser(user.uid);
+            }
           } catch (err) {
-            // fallback to email
+            // fallback to email / current theme
           }
           // Render displayName in a span with a pencil icon for editing
           authStatus.innerHTML = `Logged in as: <span id="display-name-span">${displayName}</span> <span id="edit-screenname" style="cursor:pointer;" title="Edit screen name">✏️</span>`;
@@ -277,8 +272,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     const mod = await import('./accountManager.js');
                     await mod.updateScreenName(user.uid, newScreenName);
                     displayNameSpan.textContent = newScreenName;
+                    _toast.show('Screen name updated!', 'success');
                   } catch (err) {
-                    alert('Failed to update screen name: ' + err.message);
+                    _toast.show('Failed to update screen name: ' + err.message, 'error');
                   }
                 } else {
                   displayNameSpan.textContent = displayName;
@@ -302,6 +298,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         if (availSection) availSection.style.display = 'none';
         if (findPartnerSection) findPartnerSection.style.display = 'none';
         if (matchRequestsSection) matchRequestsSection.style.display = 'none';
+        // Revert theme to anonymous localStorage preference on logout
+        if (window.themeManager) window.themeManager.clearUser();
         // Reset flatpickr to default state
         if (dateInput && window.flatpickr) {
           dateInput._flatpickr && dateInput._flatpickr.destroy();
@@ -321,3 +319,4 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { registerUser, loginUser, logoutUser, observeAuthState };
 }
+

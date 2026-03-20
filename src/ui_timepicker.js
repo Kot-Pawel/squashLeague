@@ -103,7 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     if (!valid) {
       e.preventDefault();
-      alert('Please add at least one time slot for ' + firstInvalidDate + '.');
+      const msg = 'Please add at least one time slot for ' + firstInvalidDate + '.';
+      if (window.toast) { toast.show(msg, 'warning'); } else { alert(msg); }
       return false;
     }
   });

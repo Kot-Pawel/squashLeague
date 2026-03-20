@@ -137,7 +137,7 @@ describe('Authentication functions', () => {
       };
       const result = await registerUser({ screenName: 'Test', email: 'test@example.com', password: 'pw', firebase: mockFirebase });
       expect(mockCreateUser).toHaveBeenCalledWith('test@example.com', 'pw');
-      expect(mockSet).toHaveBeenCalledWith({ screenName: 'Test', email: 'test@example.com' });
+      expect(mockSet).toHaveBeenCalledWith({ screenName: 'Test', email: 'test@example.com' }, { merge: true });
       expect(result).toBe('user saved');
     });
   });
