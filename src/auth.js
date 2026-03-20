@@ -8,7 +8,7 @@ function registerUser({ screenName, email, password, firebase }) {
       return db.collection('users').doc(userCredential.user.uid).set({
         screenName,
         email
-      });
+      }, { merge: true });
     });
 }
 
@@ -236,8 +236,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
               displayName = userDoc.data().screenName;
               screenName = displayName;
             }
+            // Load user's saved theme preference from Firestore
+            if (window.themeManager) {
+              await window.themeManager.setUser(user.uid);
+            }
           } catch (err) {
-            // fallback to email
+            // fallback to email / current theme
           }
           // Render displayName in a span with a pencil icon for editing
           authStatus.innerHTML = `Logged in as: <span id="display-name-span">${displayName}</span> <span id="edit-screenname" style="cursor:pointer;" title="Edit screen name">✏️</span>`;
@@ -283,6 +287,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         if (availSection) availSection.style.display = 'none';
         if (findPartnerSection) findPartnerSection.style.display = 'none';
         if (matchRequestsSection) matchRequestsSection.style.display = 'none';
+        // Revert theme to anonymous localStorage preference on logout
+        if (window.themeManager) window.themeManager.clearUser();
         // Reset flatpickr to default state
         if (dateInput && window.flatpickr) {
           dateInput._flatpickr && dateInput._flatpickr.destroy();

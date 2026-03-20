@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <title>Squash League</title>
     <meta charset="UTF-8">
@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> <!-- Firebase Auth SDK -->
     <script src="src/firebase.js"></script>
+    <script src="src/theme.js"></script>
     <script src="src/toast.js"></script>
     <script src="src/auth.js"></script>
     <script src="src/calendar.js"></script>
@@ -29,6 +30,9 @@
     <script src="src/player_stats.js"></script>
 </head>
 <body>
+        <!-- Theme toggle — always visible, top-right corner -->
+        <button id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">🌙</button>
+
         <div class="container py-4">
             <div class="mb-4 text-center">
                 <img src="img/banner.png" alt="Squash League Banner" class="img-fluid" style="max-width:100%;height:auto;">

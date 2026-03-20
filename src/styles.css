@@ -43,6 +43,155 @@
 }
 
 /* =============================================================
+   LIGHT THEME — overrides :root dark variables
+   Applied via [data-theme="light"] on <html>
+   ============================================================= */
+[data-theme="light"] {
+    /* Accent palette stays vivid but slightly deeper for contrast on white */
+    --primary:          #5B54E8;
+    --primary-dark:     #3D37C0;
+    --primary-glow:     rgba(91, 84, 232, 0.25);
+    --secondary:        #E8435A;
+    --success:          #059669;
+    --success-dark:     #047857;
+    --info:             #0284C7;
+    --info-dark:        #0369A1;
+    --warning:          #D97706;
+    --danger:           #DC2626;
+
+    /* Surfaces — bright & clean */
+    --bg-base:          #F4F6FB;
+    --bg-card:          #FFFFFF;
+    --bg-elevated:      #EEF1F8;
+    --bg-input:         #FFFFFF;
+    --bg-modal:         #FFFFFF;
+
+    /* Text */
+    --text-primary:     #1A1A2E;
+    --text-muted:       #64648A;
+    --text-link:        #5B54E8;
+
+    /* Borders & shadows */
+    --border:           rgba(0, 0, 0, 0.09);
+    --border-focus:     rgba(91, 84, 232, 0.55);
+    --shadow-sm:        0 2px 12px rgba(0, 0, 0, 0.08);
+    --shadow-md:        0 6px 28px rgba(0, 0, 0, 0.12);
+    --shadow-glow:      0 0 24px rgba(91, 84, 232, 0.18);
+}
+
+/* Light-theme-specific surface tweaks that can't be done with variables alone */
+[data-theme="light"] body {
+    background-image:
+        radial-gradient(ellipse at 15% 40%, rgba(91, 84, 232, 0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 10%, rgba(232, 67, 90, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 90%, rgba(5, 150, 105, 0.04) 0%, transparent 45%);
+}
+
+[data-theme="light"] .card {
+    background: rgba(255, 255, 255, 0.88);
+}
+
+[data-theme="light"] .login-floating-box {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .stat-card {
+    background: rgba(255, 255, 255, 0.88);
+}
+
+[data-theme="light"] .stat-card--gold {
+    background: rgba(255, 215, 0, 0.08);
+}
+
+[data-theme="light"] .stat-card--silver {
+    background: rgba(192, 192, 192, 0.08);
+}
+
+[data-theme="light"] .stat-card--bronze {
+    background: rgba(205, 127, 50, 0.08);
+}
+
+[data-theme="light"] .sl-toast {
+    background: #FFFFFF;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+}
+
+[data-theme="light"] .flatpickr-calendar {
+    background: #FFFFFF !important;
+}
+
+[data-theme="light"] .flatpickr-months,
+[data-theme="light"] .flatpickr-weekdays,
+[data-theme="light"] .flatpickr-month {
+    background: #F4F6FB !important;
+    color: #1A1A2E !important;
+    fill: #1A1A2E !important;
+}
+
+[data-theme="light"] .flatpickr-day {
+    color: #1A1A2E !important;
+}
+
+[data-theme="light"] .flatpickr-day:hover:not(.flatpickr-disabled) {
+    background: #EEF1F8 !important;
+}
+
+[data-theme="light"] .flatpickr-time {
+    background: #F4F6FB !important;
+}
+
+[data-theme="light"] .flatpickr-time input,
+[data-theme="light"] .flatpickr-time .flatpickr-am-pm {
+    background: #FFFFFF !important;
+    color: #1A1A2E !important;
+}
+
+[data-theme="light"] .modal-content {
+    background: #FFFFFF !important;
+}
+
+[data-theme="light"] .btn-secondary {
+    background: #EEF1F8 !important;
+    border-color: rgba(0,0,0,0.1) !important;
+    color: #1A1A2E !important;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+    background: #E2E6F2 !important;
+}
+
+/* Theme toggle button */
+#theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1100;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    box-shadow: var(--shadow-sm);
+    transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+#theme-toggle:hover {
+    box-shadow: var(--shadow-md);
+    transform: scale(1.1) rotate(15deg);
+}
+
+#theme-toggle:active {
+    transform: scale(0.94);
+}
+
+/* =============================================================
    GLOBAL BASE
    ============================================================= */
 *, *::before, *::after {
