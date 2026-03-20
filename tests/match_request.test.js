@@ -104,12 +104,15 @@ describe('match_request.js', () => {
     it('shows error and calls alert on Firestore error', async () => {
         getMock.mockResolvedValue({ empty: true });
         addMock.mockRejectedValue(new Error('fail!'));
+        // toast may not be loaded in tests; spy on window.toast or fall back to alert
+        window.toast = { show: jest.fn() };
         const btn = document.querySelector('.send-match-btn');
         btn.click();
         await Promise.resolve();
         await Promise.resolve();
         expect(btn.innerHTML).toContain('Error');
         expect(btn.disabled).toBe(false);
-        expect(global.alert).toHaveBeenCalledWith(expect.stringContaining('fail!'));
+        expect(window.toast.show).toHaveBeenCalledWith(expect.stringContaining('fail!'), 'error');
+        delete window.toast;
     });
 });

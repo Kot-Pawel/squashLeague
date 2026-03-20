@@ -10,7 +10,7 @@ describe('updateScreenName', () => {
 
   beforeAll(() => {
     updateMock = jest.fn().mockResolvedValue(undefined);
-    docMock = jest.fn(() => ({ update: updateMock }));
+    docMock = jest.fn(() => ({ set: updateMock }));
     collectionMock = jest.fn(() => ({ doc: docMock }));
     firestoreMock = jest.fn(() => ({ collection: collectionMock }));
     global.firebase = { firestore: firestoreMock };
@@ -25,7 +25,7 @@ describe('updateScreenName', () => {
     expect(firestoreMock).toHaveBeenCalled();
     expect(collectionMock).toHaveBeenCalledWith('users');
     expect(docMock).toHaveBeenCalledWith(userId);
-    expect(updateMock).toHaveBeenCalledWith({ screenName: newScreenName });
+    expect(updateMock).toHaveBeenCalledWith({ screenName: newScreenName }, { merge: true });
   });
 
   it('throws error if userId or newScreenName is missing', async () => {

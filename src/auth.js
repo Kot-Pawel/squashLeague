@@ -32,6 +32,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     const auth = firebase.auth();
 
+    // Graceful fallback: toast.js may not be loaded in test environments
+    const _toast = window.toast || { show: () => {} };
+
     // Use window-scoped functions if available (for testability)
     const regUserFn = window.registerUser || registerUser;
     const loginUserFn = window.loginUser || loginUser;
@@ -48,10 +51,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const password = document.getElementById('reg-password').value;
         regUserFn({ screenName, email, password, firebase })
           .then(() => {
-            toast.show('Registration successful! You can now submit your availability.', 'success');
+            _toast.show('Registration successful! You can now submit your availability.', 'success');
           })
           .catch((error) => {
-            toast.show('Registration failed: ' + error.message, 'error');
+            _toast.show('Registration failed: ' + error.message, 'error');
           });
       });
     }
@@ -65,10 +68,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const password = document.getElementById('login-password').value;
         loginUserFn({ email, password, firebase })
           .then(() => {
-            toast.show('Login successful!', 'success');
+            _toast.show('Login successful!', 'success');
           })
           .catch((error) => {
-            toast.show('Login failed: ' + error.message, 'error');
+            _toast.show('Login failed: ' + error.message, 'error');
           });
       });
     }
@@ -138,16 +141,24 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
           const email = window.prompt('Enter your account email for password recovery:', prefill);
           if (!email) return;
           const msg = 'If an account with that email exists, a password reset email has been sent.';
+
+          // Helper: show message via toast if available, and always write to #login-result for test-ability
+          const showResetMsg = () => {
+            _toast.show(msg, 'success', 5000);
+            const loginResult = document.getElementById('login-result');
+            if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+          };
+
           try {
             firebase.auth().sendPasswordResetEmail(email)
-              .then(() => { toast.show(msg, 'success', 5000); })
+              .then(() => { showResetMsg(); })
               .catch((err) => {
                 console.error('sendPasswordResetEmail error:', err);
-                toast.show(msg, 'success', 5000);
+                showResetMsg();
               });
           } catch (err) {
             console.error('Password reset failed (firebase missing):', err);
-            toast.show(msg, 'success', 5000);
+            showResetMsg();
           }
         }
       });
@@ -171,13 +182,13 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         try {
           firebase.auth().sendPasswordResetEmail(email)
             .then(() => {
-              toast.show(msg, 'success', 5000);
+              _toast.show(msg, 'success', 5000);
               setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
             })
             .catch((err) => {
               console.error('sendPasswordResetEmail error:', err);
               // Always show the same neutral message to avoid email enumeration
-              toast.show(msg, 'success', 5000);
+              _toast.show(msg, 'success', 5000);
               setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
             })
             .finally(() => {
@@ -185,7 +196,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             });
         } catch (err) {
           console.error('Password reset failed (firebase missing):', err);
-          toast.show(msg, 'success', 5000);
+          _toast.show(msg, 'success', 5000);
           setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
           sendBtn.disabled = false;
         }
@@ -261,9 +272,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     const mod = await import('./accountManager.js');
                     await mod.updateScreenName(user.uid, newScreenName);
                     displayNameSpan.textContent = newScreenName;
-                    toast.show('Screen name updated!', 'success');
+                    _toast.show('Screen name updated!', 'success');
                   } catch (err) {
-                    toast.show('Failed to update screen name: ' + err.message, 'error');
+                    _toast.show('Failed to update screen name: ' + err.message, 'error');
                   }
                 } else {
                   displayNameSpan.textContent = displayName;
@@ -308,3 +319,4 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { registerUser, loginUser, logoutUser, observeAuthState };
 }
+

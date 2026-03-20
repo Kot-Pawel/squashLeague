@@ -208,6 +208,8 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    /* flex is added lower in APP SHELL section */
 }
 
 /* =============================================================
@@ -439,92 +441,438 @@ p, li {
 }
 
 /* =============================================================
-   FLATPICKR DARK THEME OVERRIDES
+   FLATPICKR — MODERN CALENDAR THEME
    ============================================================= */
+
+/* ── Outer container ── */
 .flatpickr-calendar {
-    background: var(--bg-elevated) !important;
+    background: var(--bg-card) !important;
     border: 1px solid var(--border) !important;
-    border-radius: var(--radius-md) !important;
-    box-shadow: var(--shadow-md) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-md), 0 0 0 1px rgba(108,99,255,0.08), inset 0 1px 0 rgba(255,255,255,0.04) !important;
     color: var(--text-primary) !important;
+    padding: 6px !important;
+    font-family: 'Segoe UI', system-ui, sans-serif !important;
+    overflow: hidden;
 }
 
-.flatpickr-months,
-.flatpickr-weekdays,
+/* ── Month header bar ── */
+.flatpickr-months {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
+    border-radius: calc(var(--radius-lg) - 6px) calc(var(--radius-lg) - 6px) 0 0 !important;
+    padding: 2px 0 4px !important;
+}
+
 .flatpickr-month {
-    background: var(--bg-card) !important;
-    color: var(--text-primary) !important;
-    fill: var(--text-primary) !important;
+    background: transparent !important;
+    color: #fff !important;
+    fill: #fff !important;
+    height: 44px !important;
+}
+
+.flatpickr-current-month {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+    padding-top: 8px !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    background: rgba(255,255,255,0.12) !important;
+    color: #fff !important;
+    border-radius: var(--radius-sm) !important;
+    border: none !important;
+    font-weight: 600 !important;
+    padding: 2px 6px !important;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+    background: rgba(255,255,255,0.22) !important;
+}
+
+.flatpickr-current-month input.cur-year {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* ── Prev / Next arrows ── */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    padding: 8px 12px !important;
+    transition: opacity var(--transition) !important;
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+    opacity: 0.75 !important;
+    background: transparent !important;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    fill: #fff !important;
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* ── Weekday labels ── */
+.flatpickr-weekdays {
+    background: var(--bg-elevated) !important;
+    padding: 6px 0 2px !important;
 }
 
 .flatpickr-weekday {
     color: var(--text-muted) !important;
     background: transparent !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
 }
 
-.flatpickr-day {
+/* ── Day cells ── */
+span.flatpickr-day {
     color: var(--text-primary) !important;
     border-radius: var(--radius-sm) !important;
+    border: 1px solid transparent !important;
+    height: 36px !important;
+    line-height: 34px !important;
+    max-width: 36px !important;
+    transition: background var(--transition), color var(--transition), box-shadow var(--transition), transform 0.12s ease !important;
+    font-size: 0.875rem !important;
 }
 
-.flatpickr-day:hover:not(.flatpickr-disabled) {
-    background: var(--bg-card) !important;
-    border-color: var(--border) !important;
+span.flatpickr-day:hover:not(.flatpickr-disabled):not(.selected):not(.picked-date) {
+    background: var(--bg-elevated) !important;
+    border-color: var(--border-focus) !important;
+    color: var(--primary) !important;
+    transform: scale(1.08) !important;
 }
 
-.flatpickr-day.selected,
-.flatpickr-day.selected:hover {
-    background: var(--primary) !important;
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 10px var(--primary-glow) !important;
+/* Selected days — gradient pill */
+span.flatpickr-day.selected,
+span.flatpickr-day.selected:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
+    border-color: transparent !important;
+    box-shadow: 0 2px 12px var(--primary-glow) !important;
     color: #fff !important;
+    font-weight: 600 !important;
+    border-radius: 50% !important;
 }
 
-.flatpickr-day.today {
+/* Today — glowing ring */
+span.flatpickr-day.today:not(.selected) {
+    background: transparent !important;
     border-color: var(--success) !important;
     color: var(--success) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 8px rgba(0, 217, 163, 0.3) !important;
+    border-radius: 50% !important;
 }
 
-.flatpickr-day.flatpickr-disabled,
-.flatpickr-day.flatpickr-disabled:hover {
-    color: rgba(255, 255, 255, 0.2) !important;
+span.flatpickr-day.today.selected {
+    border-radius: 50% !important;
 }
 
-.flatpickr-current-month .flatpickr-monthDropdown-months {
-    background: var(--bg-elevated) !important;
-    color: var(--text-primary) !important;
+/* Disabled / out-of-range ── */
+span.flatpickr-day.flatpickr-disabled,
+span.flatpickr-day.flatpickr-disabled:hover,
+span.flatpickr-day.notAllowed,
+span.flatpickr-day.notAllowed.nextMonthDay,
+span.flatpickr-day.notAllowed.prevMonthDay {
+    color: var(--text-muted) !important;
+    opacity: 0.35 !important;
+    transform: none !important;
+    cursor: not-allowed !important;
 }
 
-.flatpickr-current-month input.cur-year {
-    color: var(--text-primary) !important;
+span.flatpickr-day.prevMonthDay,
+span.flatpickr-day.nextMonthDay {
+    color: var(--text-muted) !important;
+    opacity: 0.45 !important;
 }
 
-.flatpickr-prev-month svg,
-.flatpickr-next-month svg {
-    fill: var(--text-primary) !important;
+/* ── Already-picked dates (availability calendar) ── */
+.picked-date {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+    position: relative;
+    box-shadow: 0 0 10px var(--primary-glow) !important;
+    opacity: 1 !important;
 }
 
-.flatpickr-prev-month:hover svg,
-.flatpickr-next-month:hover svg {
-    fill: var(--primary) !important;
+/* Remove button inside picked dates */
+.picked-date .remove-date-btn {
+    color: var(--bg-base);
+    background: var(--warning);
+    border-radius: 50%;
+    font-size: 10px;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background var(--transition);
+    line-height: 1;
 }
 
+.picked-date .remove-date-btn:hover {
+    background: var(--danger);
+}
+
+/* ── Time picker section ── */
 .flatpickr-time {
     background: var(--bg-elevated) !important;
     border-top: 1px solid var(--border) !important;
+    border-radius: 0 0 calc(var(--radius-lg) - 6px) calc(var(--radius-lg) - 6px) !important;
+    margin-top: 4px !important;
 }
 
 .flatpickr-time input,
 .flatpickr-time .flatpickr-am-pm {
     background: var(--bg-input) !important;
     color: var(--text-primary) !important;
-    border-color: var(--border) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    transition: border-color var(--transition), box-shadow var(--transition) !important;
 }
 
 .flatpickr-time input:focus,
 .flatpickr-time .flatpickr-am-pm:focus {
     background: var(--bg-input) !important;
     color: var(--primary) !important;
+    border-color: var(--border-focus) !important;
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.2) !important;
+}
+
+/* ── Light theme adjustments ── */
+[data-theme="light"] .flatpickr-calendar {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 0 0 1px rgba(91,84,232,0.10) !important;
+}
+
+[data-theme="light"] .flatpickr-weekdays {
+    background: #f0f2fb !important;
+}
+
+[data-theme="light"] span.flatpickr-day:hover:not(.flatpickr-disabled):not(.selected):not(.picked-date) {
+    background: #eef0fc !important;
+    color: var(--primary) !important;
+}
+
+[data-theme="light"] span.flatpickr-day.flatpickr-disabled {
+    color: #bbb !important;
+}
+
+/* =============================================================
+   APP SHELL — sidebar + main content layout
+   ============================================================= */
+
+/* Sidebar width token */
+:root { --sidebar-w: 220px; }
+
+/* ── Sidebar ── */
+.app-sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: rgba(26, 26, 46, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    z-index: 200;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+}
+
+.sidebar-brand {
+    padding: 18px 16px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo {
+    width: 100%;
+    max-height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(108,99,255,0.3));
+}
+
+.sidebar-nav {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0 8px;
+    flex: 1;
+}
+
+.sidebar-nav li { margin: 2px 0; }
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.sidebar-link i {
+    font-size: 1.15rem;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-link:hover {
+    background: rgba(108,99,255,0.1);
+    color: var(--text-primary);
+}
+
+.sidebar-link.active {
+    background: linear-gradient(135deg, rgba(75,68,204,0.45), rgba(108,99,255,0.3));
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(108,99,255,0.25);
+}
+
+/* ── Main content area pushed right of sidebar ── */
+.app-main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-width: 0;
+}
+
+/* ── Hamburger button (mobile only) ── */
+.sidebar-hamburger {
+    display: none;
+    position: fixed;
+    top: 14px; left: 14px;
+    z-index: 210;
+    width: 40px; height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition);
+}
+
+.sidebar-hamburger:hover { background: var(--bg-card); }
+
+/* ── Bottom nav (mobile) ── */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    z-index: 200;
+    padding: 0 4px;
+    align-items: stretch;
+}
+
+.bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border-top: 2px solid transparent;
+    transition: color var(--transition), border-color var(--transition);
+}
+
+.bottom-nav__item i {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.bottom-nav__item.active {
+    color: var(--primary);
+    border-top-color: var(--primary);
+}
+
+.bottom-nav__item:hover { color: var(--text-primary); }
+
+/* ── Mobile breakpoint ── */
+@media (max-width: 767px) {
+    :root { --sidebar-w: 0px; }
+
+    .app-sidebar {
+        transform: translateX(-100%);
+        width: 240px;
+    }
+
+    .app-sidebar.sidebar--open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-md);
+    }
+
+    .app-main {
+        margin-left: 0;
+        padding-bottom: 68px; /* room for bottom nav */
+    }
+
+    .sidebar-hamburger { display: flex; }
+    .bottom-nav        { display: flex; }
+    #theme-toggle      { top: 14px; right: 14px; }
+}
+
+/* ── Light theme sidebar ── */
+[data-theme="light"] .app-sidebar {
+    background: rgba(255,255,255,0.92);
+    border-right-color: var(--border);
+}
+
+[data-theme="light"] .sidebar-logo {
+    filter: none;
+}
+
+[data-theme="light"] .sidebar-link.active {
+    background: linear-gradient(135deg, rgba(61,55,192,0.12), rgba(91,84,232,0.1));
+    color: var(--primary);
+}
+
+[data-theme="light"] .bottom-nav {
+    background: rgba(255,255,255,0.96);
+    border-top-color: var(--border);
+}
+
+/* ── Button ripple ── */
+@keyframes ripple {
+    from { transform: scale(0); opacity: 0.35; }
+    to   { transform: scale(2.8); opacity: 0; }
+}
+
+.btn-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.45);
+    pointer-events: none;
+    animation: ripple 0.55s ease-out forwards;
 }
 
 /* =============================================================
@@ -532,10 +880,10 @@ p, li {
    ============================================================= */
 
 .login-floating-box {
-    position: absolute;
+    position: fixed;
     top: 40px;
-    right: 40px;
-    z-index: 10;
+    right: 24px;
+    z-index: 500;
     min-width: 320px;
     max-width: 350px;
     background: rgba(26, 26, 46, 0.85);
@@ -547,7 +895,7 @@ p, li {
     padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 767px) {
     .login-floating-box {
         position: static;
         margin: 0 auto 1rem auto;
@@ -555,37 +903,6 @@ p, li {
         max-width: 100%;
         box-shadow: var(--shadow-sm);
     }
-}
-
-.picked-date {
-    background: var(--primary) !important;
-    color: #fff !important;
-    border-radius: 50% !important;
-    position: relative;
-    box-shadow: 0 0 8px var(--primary-glow);
-}
-
-/* Style for the remove ("X" or "🗑️") button inside picked dates */
-.picked-date .remove-date-btn {
-    color: var(--bg-base);
-    background: var(--warning);
-    border-radius: 50%;
-    font-size: 12px;
-    width: 16px;
-    height: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    cursor: pointer;
-    z-index: 10;
-    transition: background var(--transition);
-}
-
-.picked-date .remove-date-btn:hover {
-    background: var(--danger);
 }
 
 /* =============================================================

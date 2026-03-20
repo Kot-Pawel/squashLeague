@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (err) {
       btn.innerHTML = '<i class="bi bi-x-circle"></i> Error';
       btn.disabled = false;
-      toast.show('Failed to send request: ' + err.message, 'error');
+      (window.toast||{show:()=>{}}).show('Failed to send request: ' + err.message, 'error');
     }
   });
 });

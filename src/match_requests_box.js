@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
           } catch (err) {
             btn.textContent = 'Error';
             btn.disabled = false;
-            toast.show('Failed to accept: ' + err.message, 'error');
+            (window.toast||{show:()=>{}}).show('Failed to accept: ' + err.message, 'error');
           }
         });
       });
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
           } catch (err) {
             btn.textContent = 'Error';
             btn.disabled = false;
-            toast.show('Failed to reject: ' + err.message, 'error');
+            (window.toast||{show:()=>{}}).show('Failed to reject: ' + err.message, 'error');
           }
         });
       });
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const oppScore = parseInt(document.getElementById('opp-score-' + reqId).value, 10);
 
             if (isNaN(myScore) || isNaN(oppScore)) {
-              toast.show('Please enter both scores.', 'warning');
+              (window.toast||{show:()=>{}}).show('Please enter both scores.', 'warning');
               return;
             }
 
@@ -230,12 +230,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 { result: { winnerId, isDraw, scores, recordedAt: firebase.firestore.FieldValue.serverTimestamp(), recordedBy: uid } },
                 { merge: true }
               );
-              toast.show('Result saved!', 'success');
+              (window.toast||{show:()=>{}}).show('Result saved!', 'success');
               setTimeout(() => window.location.reload(), 600);
             } catch (err) {
               saveBtn.disabled = false;
               saveBtn.textContent = 'Save';
-              toast.show('Failed to save result: ' + err.message, 'error');
+              (window.toast||{show:()=>{}}).show('Failed to save result: ' + err.message, 'error');
             }
           });
         });

@@ -56,7 +56,7 @@ beforeEach(() => {
     return chain;
   },
   doc: jest.fn(id => ({
-    update: jest.fn(updateObj => {
+    set: jest.fn((updateObj, opts) => {
       if (matchRequestsData[id]) {
         matchRequestsData[id] = { ...matchRequestsData[id], ...updateObj };
         return Promise.resolve();
