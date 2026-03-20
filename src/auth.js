@@ -73,6 +73,150 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       });
     }
 
+    // Forgot password flow using Bootstrap modal with inline validation
+    (function setupForgotPasswordModal() {
+      const forgotLink = document.getElementById('forgot-password-link');
+      const modalEl = document.getElementById('forgotPasswordModal');
+      if (!forgotLink || !modalEl) return;
+
+      // Create Bootstrap Modal instance if available
+      let bsModal = null;
+      try {
+        bsModal = new bootstrap.Modal(modalEl);
+      } catch (err) {
+        // bootstrap may be missing; fall back to prompt (rare)
+        console.warn('Bootstrap Modal not available, falling back to prompt', err);
+      }
+
+      const emailInput = document.getElementById('forgot-email-input');
+      const sendBtn = document.getElementById('forgot-send-btn');
+      const alertContainer = document.getElementById('forgot-modal-alert');
+
+      const isValidEmail = (val) => {
+        if (!val) return false;
+        // simple email regex
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      };
+
+      const setValidationState = () => {
+        const val = emailInput.value.trim();
+        if (isValidEmail(val)) {
+          emailInput.classList.remove('is-invalid');
+          sendBtn.disabled = false;
+        } else {
+          emailInput.classList.add('is-invalid');
+          sendBtn.disabled = true;
+        }
+      };
+
+      // Reset modal state
+      const resetModal = () => {
+        if (!emailInput) return;
+        emailInput.value = '';
+        emailInput.classList.remove('is-invalid');
+        if (sendBtn) sendBtn.disabled = false;
+        if (alertContainer) alertContainer.innerHTML = '';
+      };
+
+      // Show modal when link clicked
+      forgotLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        // throttle link for 60s
+        forgotLink.style.pointerEvents = 'none';
+        forgotLink.style.opacity = '0.5';
+        setTimeout(() => {
+          forgotLink.style.pointerEvents = '';
+          forgotLink.style.opacity = '';
+        }, 60000);
+
+        const prefill = (document.getElementById('login-email') || {}).value || '';
+        if (emailInput) emailInput.value = prefill;
+        if (emailInput) setValidationState();
+        if (bsModal) bsModal.show();
+        else {
+          // fallback to prompt if bootstrap modal not available
+          const email = window.prompt('Enter your account email for password recovery:', prefill);
+          if (!email) return;
+          // call compat API
+          try {
+            firebase.auth().sendPasswordResetEmail(email)
+              .then(() => {
+                const loginResult = document.getElementById('login-result');
+                const msg = 'If an account with that email exists, a password reset email has been sent.';
+                if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+                else alert(msg);
+              })
+              .catch((err) => {
+                console.error('sendPasswordResetEmail error:', err);
+                const loginResult = document.getElementById('login-result');
+                const msg = 'If an account with that email exists, a password reset email has been sent.';
+                if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+                else alert(msg);
+              });
+          } catch (err) {
+            console.error('Password reset failed (firebase missing):', err);
+            const loginResult = document.getElementById('login-result');
+            const msg = 'If an account with that email exists, a password reset email has been sent.';
+            if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+            else alert(msg);
+          }
+        }
+      });
+
+      if (!emailInput) return;
+
+      // Validate on input
+      emailInput.addEventListener('input', setValidationState);
+
+      // Send button behavior
+      sendBtn.addEventListener('click', function() {
+        const email = emailInput.value.trim();
+        if (!isValidEmail(email)) {
+          emailInput.classList.add('is-invalid');
+          return;
+        }
+        // disable send button while in flight
+        sendBtn.disabled = true;
+        // call compat API
+        try {
+          firebase.auth().sendPasswordResetEmail(email)
+            .then(() => {
+              // show success inside modal and in login area
+              const msg = 'If an account with that email exists, a password reset email has been sent.';
+              if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
+              const loginResult = document.getElementById('login-result');
+              if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+              // hide modal after short delay so user sees success message
+              setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
+            })
+            .catch((err) => {
+              console.error('sendPasswordResetEmail error:', err);
+              const msg = 'If an account with that email exists, a password reset email has been sent.';
+              if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
+              const loginResult = document.getElementById('login-result');
+              if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+              setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
+            })
+            .finally(() => {
+              sendBtn.disabled = false;
+            });
+        } catch (err) {
+          console.error('Password reset failed (firebase missing):', err);
+          const msg = 'If an account with that email exists, a password reset email has been sent.';
+          if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
+          const loginResult = document.getElementById('login-result');
+          if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+          setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
+          sendBtn.disabled = false;
+        }
+      });
+
+      // Reset modal when hidden
+      modalEl.addEventListener('hidden.bs.modal', function () {
+        resetModal();
+      });
+    })();
+
     // Logout button logic
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
