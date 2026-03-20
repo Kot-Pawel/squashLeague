@@ -17,11 +17,21 @@ function buildStatsHTML(users) {
   if (users.length === 0) {
     return '<p class="text-muted text-center py-4">No player data yet.</p>';
   }
-  const maxGames = users[0].games || 1; // leader's count — used for progress bar width
+  const maxGames = users[0].games || 1;
 
   const cards = users.map((u, i) => {
-    const pct = Math.round((u.games / maxGames) * 100);
-    const delay = Math.min(i * 60, 600); // stagger up to 600ms
+    const pct   = Math.round((u.games / maxGames) * 100);
+    const delay = Math.min(i * 60, 600);
+    const hasResults = (u.wins + u.losses + u.draws) > 0;
+    const wlHtml = hasResults
+      ? `<span class="stat-wl">
+           <span class="stat-wl__win">${u.wins}W</span>
+           <span class="stat-wl__sep">/</span>
+           <span class="stat-wl__draw">${u.draws}D</span>
+           <span class="stat-wl__sep">/</span>
+           <span class="stat-wl__loss">${u.losses}L</span>
+         </span>`
+      : '';
     return `
       <div class="stat-card ${getRankClass(i)}" style="animation-delay:${delay}ms" data-games="${u.games}">
         <div class="stat-card__rank">${getRankLabel(i)}</div>
@@ -34,6 +44,7 @@ function buildStatsHTML(users) {
         <div class="stat-card__count">
           <span class="stat-counter" data-target="${u.games}">0</span>
           <span class="stat-card__label">games</span>
+          ${wlHtml}
         </div>
       </div>`;
   }).join('');
@@ -99,21 +110,41 @@ document.addEventListener('DOMContentLoaded', function() {
       // Fetch all accepted matchRequests
       const matchSnap = await db.collection('matchRequests').where('status', '==', 'accepted').get();
       const gameCount = {};
+      const winCount  = {};
+      const lossCount = {};
+      const drawCount = {};
       matchSnap.forEach(doc => {
         const data = doc.data();
         [data.fromUserId, data.toUserId].forEach(uid => {
           gameCount[uid] = (gameCount[uid] || 0) + 1;
         });
+        // Tally wins, losses & draws from recorded results
+        if (data.result) {
+          const isDraw = data.result.isDraw === true || data.result.winnerId === null;
+          if (isDraw) {
+            [data.fromUserId, data.toUserId].forEach(uid => {
+              drawCount[uid] = (drawCount[uid] || 0) + 1;
+            });
+          } else if (data.result.winnerId) {
+            const winnerId = data.result.winnerId;
+            const loserId  = data.fromUserId === winnerId ? data.toUserId : data.fromUserId;
+            winCount[winnerId]  = (winCount[winnerId]  || 0) + 1;
+            lossCount[loserId]  = (lossCount[loserId]  || 0) + 1;
+          }
+        }
       });
 
-// Build an array of users with game counts so we can sort them
+      // Build an array of users with game counts so we can sort them
       const users = [];
       usersSnap.forEach(doc => {
         const d = doc.data();
         users.push({
-          id: doc.id,
+          id:         doc.id,
           screenName: d.screenName || d.email || 'Unknown',
-          games: gameCount[doc.id] || 0
+          games:      gameCount[doc.id] || 0,
+          wins:       winCount[doc.id]  || 0,
+          losses:     lossCount[doc.id] || 0,
+          draws:      drawCount[doc.id] || 0,
         });
       });
 

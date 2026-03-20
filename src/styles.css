@@ -888,3 +888,103 @@ p, li {
         font-size: 1.25rem;
     }
 }
+
+/* =============================================================
+   MATCH RESULTS — badges, inline form, W/L record
+   ============================================================= */
+
+/* W / L badges on match request rows */
+.result-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.result-badge--win {
+    background: rgba(0, 217, 163, 0.18);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.result-badge--loss {
+    background: rgba(255, 101, 132, 0.15);
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+
+.result-badge--draw {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.result-score {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+/* Inline result entry form */
+.result-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.result-form__label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.result-form__sep {
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.result-input {
+    text-align: center;
+    padding: 2px 4px !important;
+}
+
+/* Match request list rows */
+.match-request-row {
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.match-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-left: 4px;
+}
+
+/* W/L record on leaderboard cards */
+.stat-wl {
+    display: flex;
+    gap: 3px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin-top: 2px;
+    justify-content: flex-end;
+}
+
+.stat-wl__win  { color: var(--success); }
+.stat-wl__sep  { color: var(--text-muted); }
+.stat-wl__draw { color: #ffc107; }
+.stat-wl__loss { color: var(--secondary); }
