@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
           } catch (err) {
             btn.textContent = 'Error';
             btn.disabled = false;
-            alert('Failed to accept: ' + err.message);
+            toast.show('Failed to accept: ' + err.message, 'error');
           }
         });
       });
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
           } catch (err) {
             btn.textContent = 'Error';
             btn.disabled = false;
-            alert('Failed to reject: ' + err.message);
+            toast.show('Failed to reject: ' + err.message, 'error');
           }
         });
       });

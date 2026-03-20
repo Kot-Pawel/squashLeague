@@ -48,10 +48,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const password = document.getElementById('reg-password').value;
         regUserFn({ screenName, email, password, firebase })
           .then(() => {
-            document.getElementById('registration-result').textContent = 'Registration successful! You can now submit your availability.';
+            toast.show('Registration successful! You can now submit your availability.', 'success');
           })
           .catch((error) => {
-            document.getElementById('registration-result').textContent = 'Error: ' + error.message;
+            toast.show('Registration failed: ' + error.message, 'error');
           });
       });
     }
@@ -65,10 +65,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const password = document.getElementById('login-password').value;
         loginUserFn({ email, password, firebase })
           .then(() => {
-            document.getElementById('login-result').textContent = 'Login successful!';
+            toast.show('Login successful!', 'success');
           })
           .catch((error) => {
-            document.getElementById('login-result').textContent = 'Error: ' + error.message;
+            toast.show('Login failed: ' + error.message, 'error');
           });
       });
     }
@@ -137,28 +137,17 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
           // fallback to prompt if bootstrap modal not available
           const email = window.prompt('Enter your account email for password recovery:', prefill);
           if (!email) return;
-          // call compat API
+          const msg = 'If an account with that email exists, a password reset email has been sent.';
           try {
             firebase.auth().sendPasswordResetEmail(email)
-              .then(() => {
-                const loginResult = document.getElementById('login-result');
-                const msg = 'If an account with that email exists, a password reset email has been sent.';
-                if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-                else alert(msg);
-              })
+              .then(() => { toast.show(msg, 'success', 5000); })
               .catch((err) => {
                 console.error('sendPasswordResetEmail error:', err);
-                const loginResult = document.getElementById('login-result');
-                const msg = 'If an account with that email exists, a password reset email has been sent.';
-                if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-                else alert(msg);
+                toast.show(msg, 'success', 5000);
               });
           } catch (err) {
             console.error('Password reset failed (firebase missing):', err);
-            const loginResult = document.getElementById('login-result');
-            const msg = 'If an account with that email exists, a password reset email has been sent.';
-            if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-            else alert(msg);
+            toast.show(msg, 'success', 5000);
           }
         }
       });
@@ -178,23 +167,17 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         // disable send button while in flight
         sendBtn.disabled = true;
         // call compat API
+        const msg = 'If an account with that email exists, a password reset email has been sent.';
         try {
           firebase.auth().sendPasswordResetEmail(email)
             .then(() => {
-              // show success inside modal and in login area
-              const msg = 'If an account with that email exists, a password reset email has been sent.';
-              if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
-              const loginResult = document.getElementById('login-result');
-              if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
-              // hide modal after short delay so user sees success message
+              toast.show(msg, 'success', 5000);
               setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
             })
             .catch((err) => {
               console.error('sendPasswordResetEmail error:', err);
-              const msg = 'If an account with that email exists, a password reset email has been sent.';
-              if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
-              const loginResult = document.getElementById('login-result');
-              if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+              // Always show the same neutral message to avoid email enumeration
+              toast.show(msg, 'success', 5000);
               setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
             })
             .finally(() => {
@@ -202,10 +185,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             });
         } catch (err) {
           console.error('Password reset failed (firebase missing):', err);
-          const msg = 'If an account with that email exists, a password reset email has been sent.';
-          if (alertContainer) alertContainer.innerHTML = `<div class="alert alert-success" role="alert">${msg}</div>`;
-          const loginResult = document.getElementById('login-result');
-          if (loginResult) loginResult.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+          toast.show(msg, 'success', 5000);
           setTimeout(() => { if (bsModal) bsModal.hide(); resetModal(); }, 800);
           sendBtn.disabled = false;
         }
@@ -277,8 +257,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     const mod = await import('./accountManager.js');
                     await mod.updateScreenName(user.uid, newScreenName);
                     displayNameSpan.textContent = newScreenName;
+                    toast.show('Screen name updated!', 'success');
                   } catch (err) {
-                    alert('Failed to update screen name: ' + err.message);
+                    toast.show('Failed to update screen name: ' + err.message, 'error');
                   }
                 } else {
                   displayNameSpan.textContent = displayName;

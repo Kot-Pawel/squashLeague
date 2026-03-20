@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> <!-- Firebase Auth SDK -->
     <script src="src/firebase.js"></script>
+    <script src="src/toast.js"></script>
     <script src="src/auth.js"></script>
     <script src="src/calendar.js"></script>
     <script src="src/find_partner.js"></script>
@@ -42,7 +43,6 @@
                         <div class="mb-2"><label>Password: <input type="password" id="login-password" class="form-control" required autocomplete="current-password"></label></div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
-                    <div id="login-result" class="mb-2"></div>
                     <p class="mb-2"><a href="#" id="forgot-password-link">Forgot password?</a></p>
                     <button id="show-register-btn" class="btn btn-outline-success w-100 mb-2">Not a user? Register!</button>
                 </div>
@@ -55,7 +55,6 @@
                         <div class="mb-2"><label>Password: <input type="password" id="reg-password" class="form-control" required autocomplete="current-password"></label></div>
                         <button type="submit" class="btn btn-success w-100">Register</button>
                     </form>
-                    <div id="registration-result" class="mb-3"></div>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary w-100" style="display:none;">Logout</button>
                 <button id="show-player-stats-btn" class="btn btn-info w-100 mb-4">Show Player Stats</button>
@@ -122,8 +121,16 @@
                 </div>
             </div>
             <div id="player-stats-section" style="display:none;">
-                <button id="back-to-main-btn" class="btn btn-secondary mb-3">&larr; Back</button>
-                <div id="player-stats-list">Loading...</div>
+                <div class="d-flex align-items-center gap-3 mb-1">
+                    <button id="back-to-main-btn" class="btn btn-secondary">&larr; Back</button>
+                    <div>
+                        <div class="stats-heading">🏆 Leaderboard</div>
+                        <div class="stats-subheading">Ranked by accepted matches played</div>
+                    </div>
+                </div>
+                <div id="player-stats-list" class="mt-3">
+                    <p class="loading-msg text-center py-4">Loading stats…</p>
+                </div>
             </div>
         </div>
 </body>

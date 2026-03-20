@@ -1,3 +1,81 @@
+// ── Leaderboard rendering helpers ─────────────────────────────────────────────
+
+const RANK_MEDALS = ['🥇', '🥈', '🥉'];
+
+function getRankLabel(index) {
+  return index < 3 ? RANK_MEDALS[index] : `#${index + 1}`;
+}
+
+function getRankClass(index) {
+  if (index === 0) return 'stat-card--gold';
+  if (index === 1) return 'stat-card--silver';
+  if (index === 2) return 'stat-card--bronze';
+  return '';
+}
+
+function buildStatsHTML(users) {
+  if (users.length === 0) {
+    return '<p class="text-muted text-center py-4">No player data yet.</p>';
+  }
+  const maxGames = users[0].games || 1; // leader's count — used for progress bar width
+
+  const cards = users.map((u, i) => {
+    const pct = Math.round((u.games / maxGames) * 100);
+    const delay = Math.min(i * 60, 600); // stagger up to 600ms
+    return `
+      <div class="stat-card ${getRankClass(i)}" style="animation-delay:${delay}ms" data-games="${u.games}">
+        <div class="stat-card__rank">${getRankLabel(i)}</div>
+        <div class="stat-card__body">
+          <div class="stat-card__name">${escapeHTML(u.screenName)}</div>
+          <div class="stat-card__bar-wrap">
+            <div class="stat-card__bar" style="--pct:${pct}%"></div>
+          </div>
+        </div>
+        <div class="stat-card__count">
+          <span class="stat-counter" data-target="${u.games}">0</span>
+          <span class="stat-card__label">games</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `<div class="stats-leaderboard">${cards}</div>`;
+}
+
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/** Animate all .stat-counter elements from 0 → data-target over ~900ms */
+function animateCounters(container) {
+  const duration = 900;
+  container.querySelectorAll('.stat-counter').forEach(el => {
+    const target = parseInt(el.dataset.target, 10);
+    if (!target) { el.textContent = '0'; return; }
+    const start = performance.now();
+    function step(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target);
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/** Animate progress bars from 0 → --pct after cards appear */
+function animateBars(container) {
+  // Small delay so the card entrance animation runs first
+  setTimeout(() => {
+    container.querySelectorAll('.stat-card__bar').forEach(bar => {
+      bar.classList.add('stat-card__bar--animate');
+    });
+  }, 150);
+}
+
+// ── Main DOMContentLoaded ──────────────────────────────────────────────────────
+
 document.addEventListener('DOMContentLoaded', function() {
   const showBtn = document.getElementById('show-player-stats-btn');
   const backBtn = document.getElementById('back-to-main-btn');
@@ -48,12 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return a.screenName.localeCompare(b.screenName);
       });
 
-      let html = '<ul>';
-      filteredUsers.forEach(u => {
-        html += `<li><b>${u.screenName}</b>: ${u.games} games played</li>`;
-      });
-      html += '</ul>';
-      statsList.innerHTML = html;
+      statsList.innerHTML = buildStatsHTML(filteredUsers);
+      animateCounters(statsList);
+      animateBars(statsList);
     } catch (err) {
       statsList.textContent = 'Error loading stats: ' + err.message;
     }
