@@ -202,7 +202,17 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         }
       });
 
-      // Reset modal when hidden
+      // Move focus out of the modal before Bootstrap sets aria-hidden="true".
+      // Without this, the focused button inside the modal remains focused while
+      // aria-hidden is applied, triggering an accessibility violation warning.
+      modalEl.addEventListener('hide.bs.modal', function () {
+        if (modalEl.contains(document.activeElement)) {
+          document.activeElement.blur();
+          forgotLink.focus();
+        }
+      });
+
+      // Reset modal content once fully hidden
       modalEl.addEventListener('hidden.bs.modal', function () {
         resetModal();
       });

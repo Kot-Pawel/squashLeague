@@ -20,8 +20,7 @@
 
     class ToastManager {
         constructor() {
-            if (typeof document === 'undefined') return; // guard for non-browser (tests)
-            this._container = this._createContainer();
+            this._container = null; // created lazily on first use
         }
 
         _createContainer() {
@@ -33,6 +32,14 @@
             return el;
         }
 
+        _getContainer() {
+            if (!this._container) {
+                if (typeof document === 'undefined' || !document.body) return null;
+                this._container = this._createContainer();
+            }
+            return this._container;
+        }
+
         /**
          * Show a toast notification.
          * @param {string} message  - The message to display.
@@ -40,7 +47,8 @@
          * @param {number} duration - Auto-dismiss delay in ms (default: 3800).
          */
         show(message, type = 'info', duration = 3800) {
-            if (!this._container) return;
+            const container = this._getContainer();
+            if (!container) return;
 
             const color = COLORS[type] || COLORS.info;
             const icon  = ICONS[type]  || ICONS.info;
@@ -58,7 +66,7 @@
             // Dismiss on close button click
             toast.querySelector('.sl-toast__close').addEventListener('click', () => this._dismiss(toast));
 
-            this._container.appendChild(toast);
+            container.appendChild(toast);
 
             // Trigger enter animation on next frame
             requestAnimationFrame(() => toast.classList.add('sl-toast--visible'));
