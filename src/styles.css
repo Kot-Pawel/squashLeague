@@ -1,3 +1,387 @@
+/* =============================================================
+   DESIGN SYSTEM — CSS CUSTOM PROPERTIES
+   ============================================================= */
+:root {
+    /* Accent palette */
+    --primary:          #6C63FF;
+    --primary-dark:     #4B44CC;
+    --primary-glow:     rgba(108, 99, 255, 0.35);
+    --secondary:        #FF6584;
+    --success:          #00D9A3;
+    --success-dark:     #00A87E;
+    --info:             #38BDF8;
+    --info-dark:        #0EA5E9;
+    --warning:          #F59E0B;
+    --danger:           #EF4444;
+
+    /* Surfaces */
+    --bg-base:          #0F0F1A;
+    --bg-card:          #1A1A2E;
+    --bg-elevated:      #242440;
+    --bg-input:         #1E1E35;
+    --bg-modal:         #1A1A2E;
+
+    /* Text */
+    --text-primary:     #EAEAEA;
+    --text-muted:       #8888AA;
+    --text-link:        #9B93FF;
+
+    /* Borders & shadows */
+    --border:           rgba(255, 255, 255, 0.08);
+    --border-focus:     rgba(108, 99, 255, 0.6);
+    --shadow-sm:        0 4px 16px rgba(0, 0, 0, 0.35);
+    --shadow-md:        0 8px 32px rgba(0, 0, 0, 0.45);
+    --shadow-glow:      0 0 30px var(--primary-glow);
+
+    /* Shape */
+    --radius-sm:        8px;
+    --radius-md:        12px;
+    --radius-lg:        18px;
+
+    /* Transitions */
+    --transition:       0.22s ease;
+}
+
+/* =============================================================
+   GLOBAL BASE
+   ============================================================= */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-base);
+    background-image:
+        radial-gradient(ellipse at 15% 40%, rgba(108, 99, 255, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 10%, rgba(255, 101, 132, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 90%, rgba(0, 217, 163, 0.06) 0%, transparent 45%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* =============================================================
+   BOOTSTRAP OVERRIDES — CARDS
+   ============================================================= */
+.card {
+    background: rgba(26, 26, 46, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-sm);
+    color: var(--text-primary);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.25rem;
+}
+
+.card-header.bg-success {
+    background: linear-gradient(135deg, var(--success-dark), var(--success)) !important;
+    color: #0a2a22 !important;
+}
+
+.card-header.bg-info {
+    background: linear-gradient(135deg, var(--info-dark), var(--info)) !important;
+    color: #062030 !important;
+}
+
+.card-header.bg-warning {
+    background: linear-gradient(135deg, #B45309, var(--warning)) !important;
+    color: #fff !important;
+}
+
+.card-header.bg-primary {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
+    color: #fff !important;
+}
+
+.card-body {
+    color: var(--text-primary);
+}
+
+/* =============================================================
+   BOOTSTRAP OVERRIDES — BUTTONS
+   ============================================================= */
+.btn {
+    border-radius: var(--radius-sm) !important;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: all var(--transition);
+    border: none;
+    padding: 0.5rem 1.1rem;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+    box-shadow: 0 2px 12px rgba(108, 99, 255, 0.4);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background: linear-gradient(135deg, var(--primary), #8B5CF6) !important;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.55) !important;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-dark), var(--success)) !important;
+    border-color: transparent !important;
+    color: #0a2a22 !important;
+    box-shadow: 0 2px 12px rgba(0, 217, 163, 0.35);
+}
+
+.btn-success:hover, .btn-success:focus {
+    background: linear-gradient(135deg, var(--success), #4FFFCE) !important;
+    box-shadow: 0 4px 20px rgba(0, 217, 163, 0.5) !important;
+}
+
+.btn-outline-success {
+    border: 1px solid var(--success) !important;
+    color: var(--success) !important;
+    background: transparent !important;
+}
+
+.btn-outline-success:hover {
+    background: rgba(0, 217, 163, 0.15) !important;
+    box-shadow: 0 0 12px rgba(0, 217, 163, 0.3);
+}
+
+.btn-secondary {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+.btn-secondary:hover {
+    background: #2e2e52 !important;
+    border-color: rgba(255,255,255,0.15) !important;
+}
+
+.btn-info {
+    background: linear-gradient(135deg, var(--info-dark), var(--info)) !important;
+    border-color: transparent !important;
+    color: #062030 !important;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, var(--info), #7DD3FC) !important;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #B91C1C, var(--danger)) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+}
+
+.btn-link {
+    color: var(--text-link) !important;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    color: var(--primary) !important;
+    text-decoration: underline;
+}
+
+/* =============================================================
+   BOOTSTRAP OVERRIDES — FORM CONTROLS
+   ============================================================= */
+.form-control, .form-select {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--text-primary) !important;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted) !important;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-input) !important;
+    border-color: var(--border-focus) !important;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2) !important;
+    color: var(--text-primary) !important;
+    outline: none;
+}
+
+.form-label, label {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+/* =============================================================
+   BOOTSTRAP OVERRIDES — MODAL
+   ============================================================= */
+.modal-content {
+    background: var(--bg-modal) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+    color: var(--text-primary) !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border) !important;
+}
+
+.modal-title {
+    color: var(--text-primary);
+}
+
+.btn-close {
+    filter: invert(1) brightness(0.7);
+}
+
+.modal-backdrop.show {
+    opacity: 0.7 !important;
+}
+
+/* =============================================================
+   BOOTSTRAP OVERRIDES — ALERTS, LINKS & MISC
+   ============================================================= */
+.alert {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-primary) !important;
+}
+
+.alert-danger  { border-left: 3px solid var(--danger)  !important; }
+.alert-success { border-left: 3px solid var(--success) !important; }
+.alert-info    { border-left: 3px solid var(--info)    !important; }
+.alert-warning { border-left: 3px solid var(--warning) !important; }
+
+a {
+    color: var(--text-link);
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--primary);
+}
+
+p, li {
+    color: var(--text-primary);
+}
+
+/* =============================================================
+   FLATPICKR DARK THEME OVERRIDES
+   ============================================================= */
+.flatpickr-calendar {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-md) !important;
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-months,
+.flatpickr-weekdays,
+.flatpickr-month {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    fill: var(--text-primary) !important;
+}
+
+.flatpickr-weekday {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+}
+
+.flatpickr-day {
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.flatpickr-day:hover:not(.flatpickr-disabled) {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 10px var(--primary-glow) !important;
+    color: #fff !important;
+}
+
+.flatpickr-day.today {
+    border-color: var(--success) !important;
+    color: var(--success) !important;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+    color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-current-month input.cur-year {
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    fill: var(--text-primary) !important;
+}
+
+.flatpickr-prev-month:hover svg,
+.flatpickr-next-month:hover svg {
+    fill: var(--primary) !important;
+}
+
+.flatpickr-time {
+    background: var(--bg-elevated) !important;
+    border-top: 1px solid var(--border) !important;
+}
+
+.flatpickr-time input,
+.flatpickr-time .flatpickr-am-pm {
+    background: var(--bg-input) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border) !important;
+}
+
+.flatpickr-time input:focus,
+.flatpickr-time .flatpickr-am-pm:focus {
+    background: var(--bg-input) !important;
+    color: var(--primary) !important;
+}
+
+/* =============================================================
+   CUSTOM COMPONENTS — adapted to dark theme
+   ============================================================= */
+
 .login-floating-box {
     position: absolute;
     top: 40px;
@@ -5,32 +389,37 @@
     z-index: 10;
     min-width: 320px;
     max-width: 350px;
-    background: rgba(255,255,255,0.7);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    background: rgba(26, 26, 46, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
     padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
+
 @media (max-width: 600px) {
     .login-floating-box {
         position: static;
         margin: 0 auto 1rem auto;
         width: 100%;
         max-width: 100%;
-        box-shadow: none;
+        box-shadow: var(--shadow-sm);
     }
 }
 
 .picked-date {
-    background: #83c2fd !important;
+    background: var(--primary) !important;
     color: #fff !important;
     border-radius: 50% !important;
     position: relative;
+    box-shadow: 0 0 8px var(--primary-glow);
 }
 
 /* Style for the remove ("X" or "🗑️") button inside picked dates */
 .picked-date .remove-date-btn {
-    color: #fff;
-    background: #f8fa86;
+    color: var(--bg-base);
+    background: var(--warning);
     border-radius: 50%;
     font-size: 12px;
     width: 16px;
@@ -43,4 +432,9 @@
     right: 2px;
     cursor: pointer;
     z-index: 10;
+    transition: background var(--transition);
+}
+
+.picked-date .remove-date-btn:hover {
+    background: var(--danger);
 }
