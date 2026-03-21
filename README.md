@@ -12,7 +12,7 @@ Users can:
 
 All user data is securely stored in Firebase (Firestore and Authentication). Screen names are used for privacy instead of emails. The app is designed for easy deployment on GitHub Pages.
 
-Code is generated using GPT-4.1
+Code is generated using GPT-4.1, later Claude Sonnet 4.6
 
 ## Security Note: Firebase API Key
 
