@@ -7,3 +7,5 @@
 31st Aug 2025
 
 * added function to send match requests
+
+Change log abbandoned - look through pull requests to browse app changes.

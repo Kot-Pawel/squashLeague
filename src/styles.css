@@ -451,7 +451,6 @@ p, li {
     border-radius: var(--radius-lg) !important;
     box-shadow: var(--shadow-md), 0 0 0 1px rgba(108,99,255,0.08), inset 0 1px 0 rgba(255,255,255,0.04) !important;
     color: var(--text-primary) !important;
-    padding: 6px !important;
     font-family: 'Segoe UI', system-ui, sans-serif !important;
     overflow: hidden;
 }
@@ -539,7 +538,7 @@ span.flatpickr-day {
     border: 1px solid transparent !important;
     height: 36px !important;
     line-height: 34px !important;
-    max-width: 36px !important;
+    max-width: 39px !important;
     transition: background var(--transition), color var(--transition), box-shadow var(--transition), transform 0.12s ease !important;
     font-size: 0.875rem !important;
 }
@@ -895,6 +894,19 @@ span.flatpickr-day.nextMonthDay {
     padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 
+/* Centered login state — shown when no user is logged in */
+.login-floating-box.login-centered {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+}
+
+/* Remove sidebar offset when nav is hidden */
+.app-main--no-sidebar {
+    margin-left: 0 !important;
+}
+
 @media (max-width: 767px) {
     .login-floating-box {
         position: static;
@@ -902,6 +914,13 @@ span.flatpickr-day.nextMonthDay {
         width: 100%;
         max-width: 100%;
         box-shadow: var(--shadow-sm);
+    }
+
+    /* On mobile, login-centered just uses normal static flow (already centred by margin:auto above) */
+    .login-floating-box.login-centered {
+        top: auto;
+        left: auto;
+        transform: none;
     }
 }
 

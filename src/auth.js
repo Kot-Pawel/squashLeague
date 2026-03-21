@@ -239,6 +239,11 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       const availSection = document.getElementById('availability-section');
       const findPartnerSection = document.getElementById('find-partner-section');
       const matchRequestsSection = document.getElementById('match-requests-section');
+      const appSidebar = document.getElementById('app-sidebar');
+      const sidebarHamburger = document.getElementById('sidebar-hamburger');
+      const bottomNav = document.getElementById('bottom-nav');
+      const appMain = document.querySelector('.app-main');
+      const loginBox = document.getElementById('login-section');
       if (user) {
         if (regForm) regForm.style.display = 'none';
         if (loginForm) loginForm.style.display = 'none';
@@ -246,6 +251,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         if (availSection) availSection.style.display = '';
         if (findPartnerSection) findPartnerSection.style.display = '';
         if (matchRequestsSection) matchRequestsSection.style.display = '';
+        // Show navigation
+        if (appSidebar) appSidebar.style.display = '';
+        if (sidebarHamburger) sidebarHamburger.style.display = '';
+        if (bottomNav) bottomNav.style.display = '';
+        if (appMain) appMain.classList.remove('app-main--no-sidebar');
+        if (loginBox) loginBox.classList.remove('login-centered');
         // Fetch and show screenName if available
         if (authStatus) {
           let displayName = user.email;
@@ -308,6 +319,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         if (availSection) availSection.style.display = 'none';
         if (findPartnerSection) findPartnerSection.style.display = 'none';
         if (matchRequestsSection) matchRequestsSection.style.display = 'none';
+        // Hide navigation
+        if (appSidebar) appSidebar.style.display = 'none';
+        if (sidebarHamburger) sidebarHamburger.style.display = 'none';
+        if (bottomNav) bottomNav.style.display = 'none';
+        if (appMain) appMain.classList.add('app-main--no-sidebar');
+        if (loginBox) loginBox.classList.add('login-centered');
         // Revert theme to anonymous localStorage preference on logout
         if (window.themeManager) window.themeManager.clearUser();
         // Reset flatpickr to default state
