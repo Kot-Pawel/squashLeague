@@ -14,12 +14,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const db = firebase.firestore();
     const uid = user.uid;
     const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
+    const todayStr = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
 
     // Show matches from up to 7 days ago so players can enter results after the match
     const windowStart = new Date(today);
     windowStart.setDate(today.getDate() - 7);
-    const windowStartStr = windowStart.toISOString().slice(0, 10);
+    const windowStartStr = [
+      windowStart.getFullYear(),
+      String(windowStart.getMonth() + 1).padStart(2, '0'),
+      String(windowStart.getDate()).padStart(2, '0')
+    ].join('-');
 
     try {
       const snapshot = await db.collection('matchRequests')
