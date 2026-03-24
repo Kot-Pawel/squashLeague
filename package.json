@@ -9,6 +9,17 @@
   "scripts": {
     "test": "jest"
   },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 75,
+        "statements": 75
+      }
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

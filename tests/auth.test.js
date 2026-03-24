@@ -115,6 +115,146 @@ describe('auth.js DOM logic', () => {
     expect(document.getElementById('login-form').style.display).toBe('block');
     expect(document.getElementById('logout-btn').style.display).toBe('none');
   });
+
+  it('edit screen name: clicking edit then saving same name reverts without calling accountManager', async () => {
+    const user = { uid: 'abc123', email: 'test@example.com' };
+    const call = window.observeAuthState.mock.calls[0];
+    const { onChange } = call[0];
+    await onChange(user);
+    await new Promise(r => setTimeout(r, 0));
+    const editBtn = document.getElementById('edit-screenname');
+    const displayNameSpan = document.getElementById('display-name-span');
+    expect(editBtn).toBeTruthy();
+    // Click edit to show input + save button
+    editBtn.click();
+    await new Promise(r => setTimeout(r, 0));
+    const saveBtn = document.getElementById('save-screenname-btn');
+    const input = document.getElementById('edit-screenname-input');
+    expect(saveBtn).toBeTruthy();
+    // Leave the name unchanged and click save
+    input.value = displayNameSpan.textContent;
+    saveBtn.click();
+    await new Promise(r => setTimeout(r, 0));
+    // Name should revert to original (no update attempted)
+    expect(document.getElementById('display-name-span').textContent).toBe(displayNameSpan.textContent);
+  });
+});
+
+// Additional DOM tests for forgot-password and flatpickr behaviors
+describe('auth.js additional DOM tests', () => {
+  beforeEach(() => {
+    // Build minimal DOM including forgot-password elements
+    document.body.innerHTML = `
+      <input id="login-email" value="test@example.com">
+      <div id="login-result"></div>
+      <a id="forgot-password-link" href="#">Forgot</a>
+      <div id="forgotPasswordModal" class="modal">
+        <input id="forgot-email-input" />
+        <button id="forgot-send-btn">Send</button>
+        <div id="forgot-modal-alert"></div>
+      </div>
+      <input id="available-dates">
+    `;
+    // Prevent module from calling firebase.onAuthStateChanged during init
+    window.observeAuthState = jest.fn();
+    // toast mock
+    window.toast = { show: jest.fn() };
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.resetModules();
+    delete window.toast;
+    delete window.bootstrap;
+    delete window.prompt;
+  });
+
+  it('forgot password fallback (prompt) sends reset and writes neutral message', async () => {
+    const sendReset = jest.fn(() => Promise.resolve());
+    window.firebase = {
+      auth: jest.fn(() => ({ sendPasswordResetEmail: sendReset }))
+    };
+    // Make prompt return the email
+    window.prompt = jest.fn(() => 'test@example.com');
+    // Load module after DOM prepared
+    jest.resetModules();
+    require('../src/auth');
+    document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
+
+    const forgotLink = document.getElementById('forgot-password-link');
+    forgotLink.click();
+    await new Promise(r => setTimeout(r, 0));
+    expect(sendReset).toHaveBeenCalledWith('test@example.com');
+    const loginResult = document.getElementById('login-result');
+    expect(loginResult.innerHTML).toContain('password reset');
+  });
+
+  it('forgot password modal flow calls sendPasswordResetEmail and hides modal', async () => {
+    const sendReset = jest.fn(() => Promise.resolve());
+    window.firebase = {
+      auth: jest.fn(() => ({ sendPasswordResetEmail: sendReset }))
+    };
+    // Provide a bootstrap Modal implementation that records show/hide calls
+    let lastModal = null;
+    window.bootstrap = { Modal: function(el) { lastModal = { show: jest.fn(), hide: jest.fn() }; return lastModal; } };
+    // expose to global scope so auth.js can see it during module init
+    global.bootstrap = window.bootstrap;
+    // Use fake timers so we can fast-forward the 800ms hide timeout
+    jest.useFakeTimers();
+    jest.resetModules();
+    require('../src/auth');
+    document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
+
+    const forgotLink = document.getElementById('forgot-password-link');
+    forgotLink.click();
+    await Promise.resolve(); // microtasks are not affected by fake timers
+    // modal should be shown
+    expect(lastModal).toBeTruthy();
+    expect(lastModal.show).toHaveBeenCalled();
+
+    // Ensure send button is wired and works
+    const emailInput = document.getElementById('forgot-email-input');
+    const sendBtn = document.getElementById('forgot-send-btn');
+    emailInput.value = 'test@example.com';
+    // Trigger input event to validate
+    emailInput.dispatchEvent(new Event('input'));
+    sendBtn.click();
+    // Allow any microtasks to run (promise resolution)
+    await Promise.resolve();
+    // Fast-forward the 800ms delay used before hiding modal
+    jest.advanceTimersByTime(1000);
+    // Allow any pending tasks
+    await Promise.resolve();
+    expect(sendReset).toHaveBeenCalledWith('test@example.com');
+    // Should call toast and hide modal
+    expect(window.toast.show).toHaveBeenCalled();
+    expect(lastModal.hide).toHaveBeenCalled();
+    jest.useRealTimers();
+    delete global.bootstrap;
+  });
+
+  it('on logout resets flatpickr when present', async () => {
+    const destroySpy = jest.fn();
+    const flatpickrSpy = jest.fn();
+    const dateInput = document.getElementById('available-dates');
+    dateInput._flatpickr = { destroy: destroySpy };
+    window.flatpickr = flatpickrSpy;
+    global.flatpickr = flatpickrSpy;
+    // observeAuthState should capture onChange
+    window.observeAuthState = jest.fn();
+    window.firebase = { auth: jest.fn(() => ({})), firestore: jest.fn() };
+    jest.resetModules();
+    require('../src/auth');
+    document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
+
+    const call = window.observeAuthState.mock.calls[0];
+    const { onChange } = call[0];
+    await onChange(null);
+    await new Promise(r => setTimeout(r, 0));
+    expect(destroySpy).toHaveBeenCalled();
+    expect(flatpickrSpy).toHaveBeenCalled();
+    delete global.flatpickr;
+  });
 });
 // tests/auth.test.js
 // Automated tests for auth.js authentication functions

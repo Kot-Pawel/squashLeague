@@ -1,7 +1,7 @@
 // accountManager.test.js
 // Automated tests for accountManager.js
 
-const { updateScreenName } = require('../src/accountManager');
+const { updateScreenName, updateAppMode } = require('../src/accountManager');
 
 describe('updateScreenName', () => {
   let firestoreMock, collectionMock, docMock, updateMock;
@@ -31,5 +31,26 @@ describe('updateScreenName', () => {
   it('throws error if userId or newScreenName is missing', async () => {
     await expect(updateScreenName('', newScreenName)).rejects.toThrow();
     await expect(updateScreenName(userId, '')).rejects.toThrow();
+  });
+
+  describe('updateAppMode', () => {
+    it('updates the appMode for a valid user and mode', async () => {
+      await expect(updateAppMode(userId, 'dark')).resolves.toBeUndefined();
+      expect(firestoreMock).toHaveBeenCalled();
+      expect(collectionMock).toHaveBeenCalledWith('users');
+      expect(docMock).toHaveBeenCalledWith(userId);
+      expect(updateMock).toHaveBeenCalledWith({ appMode: 'dark' }, { merge: true });
+    });
+
+    it('accepts light mode as valid', async () => {
+      updateMock.mockClear();
+      await expect(updateAppMode(userId, 'light')).resolves.toBeUndefined();
+      expect(updateMock).toHaveBeenCalledWith({ appMode: 'light' }, { merge: true });
+    });
+
+    it('throws error for missing userId or invalid mode', async () => {
+      await expect(updateAppMode('', 'dark')).rejects.toThrow();
+      await expect(updateAppMode(userId, 'blue')).rejects.toThrow();
+    });
   });
 });

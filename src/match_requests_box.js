@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
       function renderRequestRow(req, uid, userIdToScreenName, todayStr) {
         const otherUserId = req.fromUserId === uid ? req.toUserId : req.fromUserId;
         const otherUserName = userIdToScreenName[otherUserId] || otherUserId;
-        const isPast = req.date < todayStr;
+        const isPast = req.date <= todayStr;
         const status = req.status || 'pending';
 
         let actionHtml = '';
