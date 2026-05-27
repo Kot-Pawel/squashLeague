@@ -1226,6 +1226,56 @@ span.flatpickr-day.nextMonthDay {
 }
 
 /* =============================================================
+   PLAYER AVATARS
+   ============================================================= */
+
+.player-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.stat-card__body .player-avatar {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 4px;
+    margin-right: 0;
+    display: block;
+}
+
+/* Avatar picker grid inside the modal */
+.avatar-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 4px;
+}
+
+.avatar-picker-grid .avatar-option {
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    transition: border-color 0.15s;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    justify-self: center;
+}
+
+.avatar-picker-grid .avatar-option:hover {
+    border-color: var(--primary);
+}
+
+.avatar-picker-grid .avatar-option.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+/* =============================================================
    MATCH RESULTS — badges, inline form, W/L record
    ============================================================= */
 

@@ -116,18 +116,24 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
           const acceptedAsFrom = !acceptedMatchSnap2.empty;
           const alreadyMatched = acceptedAsTo || acceptedAsFrom;
 
-          // Fetch screenName from users collection
+          // Fetch screenName and avatarSeed from users collection
           let screenName = data.email;
+          let avatarSeed = screenName;
           try {
             const userDoc = await db.collection('users').doc(doc.id).get();
             if (userDoc.exists && userDoc.data().screenName) {
               screenName = userDoc.data().screenName;
+              avatarSeed = screenName;
+            }
+            if (userDoc.exists && userDoc.data().avatarSeed) {
+              avatarSeed = userDoc.data().avatarSeed;
             }
           } catch {}
+          const _avatarImg = `<img src="${(window.getAvatarUrl || (() => ''))(avatarSeed)}" class="player-avatar" alt="">`;
 
           if (!alreadyMatched) {
             partners.push(
-              `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
+              `${_avatarImg}${screenName} <span style='color:green'>(overlap: ${overlap})</span>
               <button class="send-match-btn btn btn-sm btn-outline-primary"
               title="Send Match Request"
               data-userid="${doc.id}"
@@ -138,7 +144,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             );
           } else {
             partners.push(
-              `${screenName} <span style='color:gray'>(already matched on this date)</span>`
+              `${_avatarImg}${screenName} <span style='color:gray'>(already matched on this date)</span>`
             );
           }
         }
@@ -229,17 +235,23 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             const alreadyMatched = acceptedAsTo || acceptedAsFrom;
             // ------------------------------------------------------
 
-            // Fetch screenName from users collection
+            // Fetch screenName and avatarSeed from users collection
             let screenName = data.email;
+            let avatarSeed = screenName;
             try {
               const userDoc = await db.collection('users').doc(doc.id).get();
               if (userDoc.exists && userDoc.data().screenName) {
                 screenName = userDoc.data().screenName;
+                avatarSeed = screenName;
+              }
+              if (userDoc.exists && userDoc.data().avatarSeed) {
+                avatarSeed = userDoc.data().avatarSeed;
               }
             } catch {}
+            const _avatarImg = `<img src="${(window.getAvatarUrl || (() => ''))(avatarSeed)}" class="player-avatar" alt="">`;
             if (!alreadyMatched) {
               partners.push(
-                `${screenName} <span style='color:green'>(overlap: ${overlap})</span>
+                `${_avatarImg}${screenName} <span style='color:green'>(overlap: ${overlap})</span>
                 <button class="send-match-btn btn btn-sm btn-outline-primary"
                 title="Send Match Request"
                 data-userid="${doc.id}"
@@ -250,7 +262,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
               );
             } else {
               partners.push(
-                `${screenName} <span style='color:gray'>(already matched on this date)</span>`
+                `${_avatarImg}${screenName} <span style='color:gray'>(already matched on this date)</span>`
               );
             }
           }

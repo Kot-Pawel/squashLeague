@@ -261,12 +261,16 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         if (authStatus) {
           let displayName = user.email;
           let screenName = null;
+          let avatarSeed = null;
           try {
             const db = firebase.firestore();
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists && userDoc.data().screenName) {
               displayName = userDoc.data().screenName;
               screenName = displayName;
+            }
+            if (userDoc.exists && userDoc.data().avatarSeed) {
+              avatarSeed = userDoc.data().avatarSeed;
             }
             // Load user's saved theme preference from Firestore
             if (window.themeManager) {
@@ -275,9 +279,62 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
           } catch (err) {
             // fallback to email / current theme
           }
-          // Render displayName in a span with a pencil icon for editing
-          authStatus.innerHTML = `Logged in as: <span id="display-name-span">${displayName}</span> <span id="edit-screenname" style="cursor:pointer;" title="Edit screen name">✏️</span>`;
-          // Add event listener for editing
+          const _getAvatarUrl = window.getAvatarUrl || (() => '');
+          const avatarUrl = _getAvatarUrl(avatarSeed || displayName);
+          // Render avatar image, displayName, pencil icon for editing, and avatar change button
+          authStatus.innerHTML = `<img id="user-avatar-img" src="${avatarUrl}" class="player-avatar" alt="avatar" title="Change avatar" style="cursor:pointer;"> Logged in as: <span id="display-name-span">${displayName}</span> <span id="edit-screenname" style="cursor:pointer;" title="Edit screen name">✏️</span>`;
+
+          // Avatar picker — open modal on click
+          const avatarImg = document.getElementById('user-avatar-img');
+          const avatarPickerModalEl = document.getElementById('avatarPickerModal');
+          if (avatarImg && avatarPickerModalEl && window.AVATAR_SEEDS) {
+            let _avatarModal = null;
+            try { _avatarModal = new bootstrap.Modal(avatarPickerModalEl); } catch (e) {}
+
+            // Populate grid each time it's opened
+            avatarPickerModalEl.addEventListener('show.bs.modal', function () {
+              const grid = document.getElementById('avatar-picker-grid');
+              if (!grid) return;
+              grid.innerHTML = window.AVATAR_SEEDS.map(seed =>
+                `<img src="${_getAvatarUrl(seed)}" class="avatar-option${seed === (avatarSeed || '') ? ' selected' : ''}" data-seed="${seed}" alt="${seed}" title="${seed}">`
+              ).join('');
+              // Highlight on click
+              grid.querySelectorAll('.avatar-option').forEach(img => {
+                img.addEventListener('click', function () {
+                  grid.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                  img.classList.add('selected');
+                });
+              });
+            });
+
+            avatarImg.addEventListener('click', function () {
+              if (_avatarModal) _avatarModal.show();
+            });
+
+            const avatarSaveBtn = document.getElementById('avatar-save-btn');
+            if (avatarSaveBtn) {
+              avatarSaveBtn.addEventListener('click', async function () {
+                const grid = document.getElementById('avatar-picker-grid');
+                const selected = grid && grid.querySelector('.avatar-option.selected');
+                if (!selected) return;
+                const newSeed = selected.dataset.seed;
+                avatarSaveBtn.disabled = true;
+                try {
+                  await updateAvatar(user.uid, newSeed);
+                  avatarSeed = newSeed;
+                  avatarImg.src = _getAvatarUrl(newSeed);
+                  _toast.show('Avatar updated!', 'success');
+                  if (_avatarModal) _avatarModal.hide();
+                } catch (err) {
+                  _toast.show('Failed to update avatar: ' + err.message, 'error');
+                } finally {
+                  avatarSaveBtn.disabled = false;
+                }
+              });
+            }
+          }
+
+          // Add event listener for screenName editing
           const editBtn = document.getElementById('edit-screenname');
           const displayNameSpan = document.getElementById('display-name-span');
           if (editBtn && displayNameSpan) {
@@ -289,9 +346,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 const newScreenName = input.value.trim();
                 if (newScreenName && newScreenName !== displayName) {
                   try {
-                    // Dynamically import accountManager.js
-                    const mod = await import('./accountManager.js');
-                    await mod.updateScreenName(user.uid, newScreenName);
+                    await updateScreenName(user.uid, newScreenName);
                     displayNameSpan.textContent = newScreenName;
                     _toast.show('Screen name updated!', 'success');
                   } catch (err) {

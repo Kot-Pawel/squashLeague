@@ -14,12 +14,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const db = firebase.firestore();
     const uid = user.uid;
     const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
+    const todayStr = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
 
     // Show matches from up to 7 days ago so players can enter results after the match
     const windowStart = new Date(today);
     windowStart.setDate(today.getDate() - 7);
-    const windowStartStr = windowStart.toISOString().slice(0, 10);
+    const windowStartStr = [
+      windowStart.getFullYear(),
+      String(windowStart.getMonth() + 1).padStart(2, '0'),
+      String(windowStart.getDate()).padStart(2, '0')
+    ].join('-');
 
     try {
       const snapshot = await db.collection('matchRequests')
@@ -62,16 +70,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if (req.toUserId !== uid) userIds.add(req.toUserId);
       });
 
-      // Fetch screenNames in parallel
+      // Fetch screenNames and avatarSeeds in parallel
       const userIdToScreenName = {};
+      const userIdToAvatarSeed = {};
       await Promise.all(Array.from(userIds).map(async userId => {
         try {
           const userDoc = await db.collection('users').doc(userId).get();
           userIdToScreenName[userId] = userDoc.exists && userDoc.data().screenName
             ? userDoc.data().screenName
             : userId;
+          userIdToAvatarSeed[userId] = userDoc.exists && userDoc.data().avatarSeed
+            ? userDoc.data().avatarSeed
+            : userIdToScreenName[userId];
         } catch {
           userIdToScreenName[userId] = userId;
+          userIdToAvatarSeed[userId] = userId;
         }
       }));
 
@@ -106,9 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>`;
       }
 
-      function renderRequestRow(req, uid, userIdToScreenName, todayStr) {
+      function renderRequestRow(req, uid, userIdToScreenName, todayStr, userIdToAvatarSeed) {
         const otherUserId = req.fromUserId === uid ? req.toUserId : req.fromUserId;
         const otherUserName = userIdToScreenName[otherUserId] || otherUserId;
+        const otherAvatarSeed = (userIdToAvatarSeed && userIdToAvatarSeed[otherUserId]) || otherUserName;
+        const _getAvatarUrl = window.getAvatarUrl || (() => '');
+        const avatarHtml = `<img src="${_getAvatarUrl(otherAvatarSeed)}" class="player-avatar" alt="">`;
         const isPast = req.date <= todayStr;
         const status = req.status || 'pending';
 
@@ -124,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         return `<li class="match-request-row" data-id="${req.id}">
-          With: <b>${otherUserName}</b>
+          ${avatarHtml}With: <b>${otherUserName}</b>
           on <b>${req.date}</b> at <b>${req.timeSlot}</b>
           <span class="match-actions">${actionHtml}</span>
         </li>`;
@@ -135,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (grouped[status].length) {
           html += `<b class="text-capitalize">${status}:</b><ul>`;
           grouped[status].forEach(req => {
-            html += renderRequestRow(req, uid, userIdToScreenName, todayStr);
+            html += renderRequestRow(req, uid, userIdToScreenName, todayStr, userIdToAvatarSeed);
           });
           html += '</ul>';
         }
