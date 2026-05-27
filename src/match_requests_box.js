@@ -70,16 +70,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if (req.toUserId !== uid) userIds.add(req.toUserId);
       });
 
-      // Fetch screenNames in parallel
+      // Fetch screenNames and avatarSeeds in parallel
       const userIdToScreenName = {};
+      const userIdToAvatarSeed = {};
       await Promise.all(Array.from(userIds).map(async userId => {
         try {
           const userDoc = await db.collection('users').doc(userId).get();
           userIdToScreenName[userId] = userDoc.exists && userDoc.data().screenName
             ? userDoc.data().screenName
             : userId;
+          userIdToAvatarSeed[userId] = userDoc.exists && userDoc.data().avatarSeed
+            ? userDoc.data().avatarSeed
+            : userIdToScreenName[userId];
         } catch {
           userIdToScreenName[userId] = userId;
+          userIdToAvatarSeed[userId] = userId;
         }
       }));
 
@@ -114,9 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>`;
       }
 
-      function renderRequestRow(req, uid, userIdToScreenName, todayStr) {
+      function renderRequestRow(req, uid, userIdToScreenName, todayStr, userIdToAvatarSeed) {
         const otherUserId = req.fromUserId === uid ? req.toUserId : req.fromUserId;
         const otherUserName = userIdToScreenName[otherUserId] || otherUserId;
+        const otherAvatarSeed = (userIdToAvatarSeed && userIdToAvatarSeed[otherUserId]) || otherUserName;
+        const _getAvatarUrl = window.getAvatarUrl || (() => '');
+        const avatarHtml = `<img src="${_getAvatarUrl(otherAvatarSeed)}" class="player-avatar" alt="">`;
         const isPast = req.date <= todayStr;
         const status = req.status || 'pending';
 
@@ -132,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         return `<li class="match-request-row" data-id="${req.id}">
-          With: <b>${otherUserName}</b>
+          ${avatarHtml}With: <b>${otherUserName}</b>
           on <b>${req.date}</b> at <b>${req.timeSlot}</b>
           <span class="match-actions">${actionHtml}</span>
         </li>`;
@@ -143,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (grouped[status].length) {
           html += `<b class="text-capitalize">${status}:</b><ul>`;
           grouped[status].forEach(req => {
-            html += renderRequestRow(req, uid, userIdToScreenName, todayStr);
+            html += renderRequestRow(req, uid, userIdToScreenName, todayStr, userIdToAvatarSeed);
           });
           html += '</ul>';
         }

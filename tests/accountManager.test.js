@@ -1,7 +1,7 @@
 // accountManager.test.js
 // Automated tests for accountManager.js
 
-const { updateScreenName, updateAppMode } = require('../src/accountManager');
+const { updateScreenName, updateAppMode, updateAvatar } = require('../src/accountManager');
 
 describe('updateScreenName', () => {
   let firestoreMock, collectionMock, docMock, updateMock;
@@ -51,6 +51,24 @@ describe('updateScreenName', () => {
     it('throws error for missing userId or invalid mode', async () => {
       await expect(updateAppMode('', 'dark')).rejects.toThrow();
       await expect(updateAppMode(userId, 'blue')).rejects.toThrow();
+    });
+  });
+
+  describe('updateAvatar', () => {
+    it('saves avatarSeed for a valid user', async () => {
+      updateMock.mockClear();
+      await expect(updateAvatar(userId, 'Ace')).resolves.toBeUndefined();
+      expect(collectionMock).toHaveBeenCalledWith('users');
+      expect(docMock).toHaveBeenCalledWith(userId);
+      expect(updateMock).toHaveBeenCalledWith({ avatarSeed: 'Ace' }, { merge: true });
+    });
+
+    it('throws if userId is missing', async () => {
+      await expect(updateAvatar('', 'Ace')).rejects.toThrow();
+    });
+
+    it('throws if avatarId is missing', async () => {
+      await expect(updateAvatar(userId, '')).rejects.toThrow();
     });
   });
 });

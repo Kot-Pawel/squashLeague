@@ -13,7 +13,7 @@ function getRankClass(index) {
   return '';
 }
 
-function buildStatsHTML(users) {
+function buildStatsHTML(users, getAvatarUrlFn) {
   if (users.length === 0) {
     return '<p class="text-muted text-center py-4">No player data yet.</p>';
   }
@@ -32,10 +32,14 @@ function buildStatsHTML(users) {
            <span class="stat-wl__loss">${u.losses}L</span>
          </span>`
       : '';
+    const avatarHtml = getAvatarUrlFn
+      ? `<img src="${getAvatarUrlFn(u.avatarSeed || u.screenName)}" class="player-avatar" alt="">`
+      : '';
     return `
       <div class="stat-card ${getRankClass(i)}" style="animation-delay:${delay}ms" data-games="${u.games}">
         <div class="stat-card__rank">${getRankLabel(i)}</div>
         <div class="stat-card__body">
+          ${avatarHtml}
           <div class="stat-card__name">${escapeHTML(u.screenName)}</div>
           <div class="stat-card__bar-wrap">
             <div class="stat-card__bar" style="--pct:${pct}%"></div>
@@ -130,6 +134,7 @@ async function loadPlayerStats() {
       users.push({
         id:         doc.id,
         screenName: d.screenName || d.email || 'Unknown',
+        avatarSeed: d.avatarSeed || null,
         games:      gameCount[doc.id] || 0,
         wins:       winCount[doc.id]  || 0,
         losses:     lossCount[doc.id] || 0,
@@ -146,7 +151,7 @@ async function loadPlayerStats() {
       return a.screenName.localeCompare(b.screenName);
     });
 
-    statsList.innerHTML = buildStatsHTML(filteredUsers);
+    statsList.innerHTML = buildStatsHTML(filteredUsers, window.getAvatarUrl || null);
     animateCounters(statsList);
     animateBars(statsList);
   } catch (err) {

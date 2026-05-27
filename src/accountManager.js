@@ -27,4 +27,19 @@ async function updateAppMode(userId, mode) {
   }, { merge: true });
 }
 
-module.exports = { updateScreenName, updateAppMode };
+/**
+ * Persists the user's chosen avatar seed to Firestore.
+ * @param {string} userId
+ * @param {string} avatarId - One of the predefined AVATAR_SEEDS values.
+ * @returns {Promise<void>}
+ */
+async function updateAvatar(userId, avatarId) {
+  if (!userId || !avatarId) throw new Error('Missing userId or avatarId');
+  await firebase.firestore().collection('users').doc(userId).set({
+    avatarSeed: avatarId
+  }, { merge: true });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { updateScreenName, updateAppMode, updateAvatar };
+}
